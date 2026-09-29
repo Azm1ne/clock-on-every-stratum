@@ -1,0 +1,93 @@
+\subsection{Two implementations, one mechanism}
+\label{sec:impl}
+
+Every sweep in this paper was run in PyTorch. The architecture is also implemented on an
+autograd engine written from scratch for this project, and the two are compared here because
+a mechanism that appears in only one implementation is a property of that implementation.
+
+\paragraph{The engine is correct.} Against PyTorch at identical weights it agrees to
+$4.4 \times 10^{-16}$ on the forward pass and $2.68 \times 10^{-15}$ on gradients, verified by
+a finite-difference suite over every operator. It groks at four moduli ($113$, $119$, $121$
+and $125$) at three seeds, and so reproduces the qualitative result of
+Sections~\ref{sec:clock} and \ref{sec:strata} independently of PyTorch's autograd.
+
+\paragraph{The two disagree about the magnitude of sparsity, and the cause is training
+precision acting on PyTorch.} At byte-identical hyperparameters the engine's circuits read
+$\mathrm{Gini}_{\text{mult}}$ about $0.2$ higher than PyTorch's at every modulus, $7$ of $7$
+matched grokked pairs, with a smaller $\lVert W_{E} \rVert$ as well. The $2 \times 2$ resolves
+it (Figure~\ref{fig:precision}):
+
+\begin{center}
+\begin{tabular}{lcc}
+  \toprule
+  & float32 & float64 \\
+  \midrule
+  from-scratch engine & $0.7671$ & $0.7536$ \\
+  PyTorch & $\mathbf{0.5791}$ & $\mathbf{0.7728}$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+Each cell is tail $\mathrm{Gini}_{\text{mult}}$ at $n = 113$: the mean over the final
+$10{,}000$ steps, never a single checkpoint, over three seeds of $40{,}000$ steps. The experiment
+was pre-registered before either dtype was read. Every cell is recomputed from its artifact
+rather than quoted.
+
+Precision is inert in the engine and decisive in PyTorch. Take $\sigma_{\text{baseline}}$ to be
+PyTorch at float32 and $\sigma_{\text{target}}$ the engine's float64 value. The effect size
+\eqref{eq:effectsize} is then $f = +1.110$ on Gini and $f = +0.968$ on
+$\lVert W_{E} \rVert$, both above the pre-registered threshold of $0.70$. The Gini value
+exceeds $1$, meaning float64 moves PyTorch slightly \emph{past} the engine's position, and it
+is given unclipped. Float64 also moves PyTorch's neuron tuning from $0.938$ to $0.770$. That
+is both axes at once, onto the engine's joint position, which is what a single convergence
+axis looks like. It dissolves an earlier worry that the two might be running different
+algorithms.
+
+\paragraph{This is an interaction, not a main effect, and the distinction is a retraction.}
+We previously claimed that training precision changes measured sparsity, full stop, and tested
+it by varying dtype \emph{inside the engine alone}. The effect size \eqref{eq:effectsize} came
+back $f = -0.07$, the sign wrong and not merely the magnitude small, and the claim was
+retracted. It stays retracted. What is true is the narrower sentence: training precision
+changes the measured sparsity \emph{in PyTorch}.
+
+Consequently every absolute sparsity number this paper reports from PyTorch is a float32 measurement,
+and we name the regime beside each one. Comparisons between moduli, and comparisons within a
+single arm, are unaffected; almost everything this paper claims is one of those. The
+replication of \citet{nguyen2026dlogclock} in Section~\ref{sec:calib} matched their published
+value because both arms are float32, and that agreement is real.
+
+Before precision was reached, we eliminated the following candidates:
+\begin{itemize}
+  \item the measurement protocol;
+  \item the hyperparameters, read from the kernel source rather than assumed;
+  \item the tail window;
+  \item the optimiser (the engine's AdamW is algebraically PyTorch's);
+  \item gradients ($2.68 \times 10^{-15}$);
+  \item minibatch noise (both are full-batch);
+  \item the initialisation distribution;
+  \item the train/test split (byte-identical, the same $3{,}830$ pairs);
+  \item the execution substrate (PyTorch on CPU reads $0.5791$ against $0.5665$ on a T4, so
+    no Kaggle number carries a hardware artefact);
+  \item the specific initialisation draw.
+\end{itemize}
+
+\paragraph{What remains open is the engine's dtype-robustness, and it has no surviving
+candidate.} The gap is explained; why the engine reaches the float64 answer at either dtype is
+not. Under a pre-registration committed before any dtype was read we tested and eliminated
+three mechanisms. They are residual type promotion in intermediate computations ($0$ of $115$
+forward intermediates promoted, with a positive control at $100\%$), matmul accumulation order,
+and softmax formulation (ratios $1.000$--$1.172$, inside the pre-registered equivalence band).
+The question stays open with no candidate rather than with a proposed one.
+
+% STE descriptive
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.62\textwidth]{../figures/F7_precision.pdf}
+  \caption{\textbf{Training precision is an interaction, not a main effect.} Each bar is tail
+    $\mathrm{Gini}_{\text{mult}}$ at $n = 113$ over three seeds and $40{,}000$ steps. The
+    from-scratch engine reads essentially the same value at either dtype, and PyTorch moves
+    by $0.19$. The experiment was pre-registered before either dtype was read. The
+    figure regenerates from \texttt{src/viz/plots.py::precision\_2x2}.}
+  \label{fig:precision}
+\end{figure}
+% STE end

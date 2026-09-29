@@ -1,0 +1,74 @@
+{
+ "01-setup.tex:c5bf564e16:154": {
+  "status": "exempt",
+  "why": "a modulus Chen et al. chose; an input to our algebra check, not a measurement",
+  "text": "moduli $143$, $154$ and $165$, and finds non-regular classes at exactly the moduli where the"
+ },
+ "03-related.tex:3fdf8e5f7c:59": {
+  "status": "exempt",
+  "why": "a value from a cited paper (not our result); the citation carries it",
+  "text": "\\citet{zhong2023clock} & $a + b$ & $\\mathbb{Z}/p\\mathbb{Z}$ under $+$ & $59$ (prime) & Fourier basis; principal components & correlational; rank-2 embedding rep"
+ },
+ "03-related.tex:6badbad913:59": {
+  "status": "exempt",
+  "why": "a value from a cited paper (not our result); the citation carries it",
+  "text": "\\citet{nguyen2026dlogclock} & $a \\cdot b$ & $(\\mathbb{Z}/p\\mathbb{Z})^{*}$ & $113$; ten primes from $59$ to $113$ & discrete-log characters & correlational & no"
+ },
+ "03-related.tex:8dc337d69f:154": {
+  "status": "exempt",
+  "why": "a value from a cited paper (not our result); the citation carries it",
+  "text": "\\citet{chen2026multiplication} & $a \\cdot b$ & the monoid $(\\mathbb{Z}/n\\mathbb{Z}, \\cdot)$ & $113$, $143$, $154$, $165$ (all square-free) & characters of each "
+ },
+ "03-related.tex:48a2ad52c6:5.2": {
+  "status": "exempt",
+  "why": "a section number of a cited paper",
+  "text": "spectrum. That observation is \\citet{furuta2024towards}'s, whose Section~5.2 reports that"
+ },
+ "03-related.tex:41d4452714:96.9": {
+  "status": "exempt",
+  "why": "a value from a cited paper (not our result); the citation carries it",
+  "text": "frequencies, and $96.9\\%$ of neurons single-frequency. Section~\\ref{sec:calib} replicates"
+ },
+ "03-related.tex:3e51367d3a:154": {
+  "status": "exempt",
+  "why": "a value from a cited paper (not our result); the citation carries it",
+  "text": "class-sensitive attention routing. They do so on four moduli, $113$, $143$, $154$ and $165$,"
+ },
+ "03-related.tex:0866986af6:0.92": {
+  "status": "exempt",
+  "why": "a value from a cited paper (not our result); the citation carries it",
+  "text": "a null arm: task-relevant channels drop $0.60$--$0.92$ while irrelevant channels sit at or"
+ },
+ "06-results-clock.tex:ba11e71a06:96.9": {
+  "status": "exempt",
+  "why": "a value from a cited paper (not our result); the citation carries it",
+  "text": "$113$ & $94.9 \\cdot 91.8 \\cdot 100.0 \\cdot 99.8 \\cdot 98.0\\%$ & (published reference $96.9\\%$) \\\\"
+ },
+ "08-results-strata.tex:0867948853:0.95": {
+  "status": "exempt",
+  "why": "a pre-registered threshold (experiments/PREREGISTER_gate2_strata.md), a definition not a measurement",
+  "text": "G0 & held-out accuracy per block & $\\ge 0.95$ & $1.0000 \\pm 0.0000$ at every measurable stratum \\\\"
+ },
+ "10-calibration.tex:3f539d6598:84.6": {
+  "status": "exempt",
+  "why": "Nanda et al.'s published value (a cited paper's number, not our result)"
+ },
+ "10-calibration.tex:ecb5ddb12d:84.6": {
+  "status": "exempt",
+  "why": "Nanda et al.'s published value (a cited paper's number, not our result)"
+ },
+ "10-calibration.tex:c9d7f1a5d6:84.6": {
+  "status": "exempt",
+  "why": "Nanda et al.'s published value (a cited paper's number, not our result)"
+ },
+ "16-reproduction.tex:96d8e05619:3.12": {
+  "status": "exempt",
+  "why": "the Python version of the environment (requirements pin it), not a result",
+  "text": "\\item Install Python 3.12.13."
+ },
+ "16-reproduction.tex:da5e652458:8.5": {
+  "status": "exempt",
+  "why": "a wall-clock time on one machine, not a result",
+  "text": "took $8.5$ hours on our CPU."
+ }
+}

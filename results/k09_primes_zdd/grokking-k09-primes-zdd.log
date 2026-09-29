@@ -1,0 +1,181 @@
+[{"stream_name":"stdout","time":8.169566001,"data":"Tesla T4 sm_75\n"}
+,{"stream_name":"stdout","time":8.16963527,"data":"=== B_thesis n=127 seed=0 units_only=False ===\n"}
+,{"stream_name":"stdout","time":14.767689282,"data":"    B_thesis n=127 s=0 step 0 te=0.008 [0m]\n"}
+,{"stream_name":"stdout","time":114.488439384,"data":"    B_thesis n=127 s=0 step 10000 te=1.000 [2m]\n"}
+,{"stream_name":"stdout","time":216.079866431,"data":"    B_thesis n=127 s=0 step 20000 te=1.000 [3m]\n"}
+,{"stream_name":"stdout","time":319.697051891,"data":"    B_thesis n=127 s=0 step 30000 te=1.000 [5m]\n"}
+,{"stream_name":"stdout","time":423.150645786,"data":"    B_thesis n=127 s=0 step 40000 te=1.000 [7m]\n"}
+,{"stream_name":"stdout","time":425.822054343,"data":"  -\u003e grok 3200 acc 1.0000\n"}
+,{"stream_name":"stdout","time":425.822214043,"data":"=== B_thesis n=127 seed=1 units_only=False ===\n"}
+,{"stream_name":"stdout","time":425.854112429,"data":"    B_thesis n=127 s=1 step 0 te=0.007 [7m]\n"}
+,{"stream_name":"stdout","time":530.046067543,"data":"    B_thesis n=127 s=1 step 10000 te=1.000 [9m]\n"}
+,{"stream_name":"stdout","time":634.170140339,"data":"    B_thesis n=127 s=1 step 20000 te=1.000 [10m]\n"}
+,{"stream_name":"stdout","time":738.035526226,"data":"    B_thesis n=127 s=1 step 30000 te=1.000 [12m]\n"}
+,{"stream_name":"stdout","time":841.619499387,"data":"    B_thesis n=127 s=1 step 40000 te=1.000 [14m]\n"}
+,{"stream_name":"stdout","time":844.257864899,"data":"  -\u003e grok 5600 acc 1.0000\n"}
+,{"stream_name":"stdout","time":844.25821545,"data":"=== B_thesis n=127 seed=2 units_only=False ===\n"}
+,{"stream_name":"stdout","time":844.290022412,"data":"    B_thesis n=127 s=2 step 0 te=0.008 [14m]\n"}
+,{"stream_name":"stdout","time":948.50007256,"data":"    B_thesis n=127 s=2 step 10000 te=1.000 [16m]\n"}
+,{"stream_name":"stdout","time":1052.207466143,"data":"    B_thesis n=127 s=2 step 20000 te=1.000 [17m]\n"}
+,{"stream_name":"stdout","time":1155.805035093,"data":"    B_thesis n=127 s=2 step 30000 te=1.000 [19m]\n"}
+,{"stream_name":"stdout","time":1259.453234563,"data":"    B_thesis n=127 s=2 step 40000 te=1.000 [21m]\n"}
+,{"stream_name":"stdout","time":1262.019982934,"data":"  -\u003e grok 9000 acc 1.0000\n"}
+,{"stream_name":"stdout","time":1262.020282568,"data":"=== B_thesis n=131 seed=0 units_only=False ===\n"}
+,{"stream_name":"stdout","time":1262.054050319,"data":"    B_thesis n=131 s=0 step 0 te=0.009 [21m]\n"}
+,{"stream_name":"stdout","time":1377.144846403,"data":"    B_thesis n=131 s=0 step 10000 te=0.911 [23m]\n"}
+,{"stream_name":"stdout","time":1492.211332044,"data":"    B_thesis n=131 s=0 step 20000 te=1.000 [25m]\n"}
+,{"stream_name":"stdout","time":1607.117117654,"data":"    B_thesis n=131 s=0 step 30000 te=1.000 [27m]\n"}
+,{"stream_name":"stdout","time":1721.992022133,"data":"    B_thesis n=131 s=0 step 40000 te=1.000 [29m]\n"}
+,{"stream_name":"stdout","time":1724.745557416,"data":"  -\u003e grok 11000 acc 0.9998\n"}
+,{"stream_name":"stdout","time":1724.745890354,"data":"=== B_thesis n=131 seed=1 units_only=False ===\n"}
+,{"stream_name":"stdout","time":1724.780512352,"data":"    B_thesis n=131 s=1 step 0 te=0.009 [29m]\n"}
+,{"stream_name":"stdout","time":1839.770177097,"data":"    B_thesis n=131 s=1 step 10000 te=1.000 [31m]\n"}
+,{"stream_name":"stdout","time":1954.62448086,"data":"    B_thesis n=131 s=1 step 20000 te=1.000 [32m]\n"}
+,{"stream_name":"stdout","time":2069.551128782,"data":"    B_thesis n=131 s=1 step 30000 te=1.000 [34m]\n"}
+,{"stream_name":"stdout","time":2184.323159312,"data":"    B_thesis n=131 s=1 step 40000 te=1.000 [36m]\n"}
+,{"stream_name":"stdout","time":2187.154680939,"data":"  -\u003e grok 7400 acc 1.0000\n"}
+,{"stream_name":"stdout","time":2187.155093685,"data":"=== B_thesis n=131 seed=2 units_only=False ===\n"}
+,{"stream_name":"stdout","time":2187.188851513,"data":"    B_thesis n=131 s=2 step 0 te=0.008 [36m]\n"}
+,{"stream_name":"stdout","time":2302.283582005,"data":"    B_thesis n=131 s=2 step 10000 te=1.000 [38m]\n"}
+,{"stream_name":"stdout","time":2417.174176097,"data":"    B_thesis n=131 s=2 step 20000 te=1.000 [40m]\n"}
+,{"stream_name":"stdout","time":2531.932447004,"data":"    B_thesis n=131 s=2 step 30000 te=1.000 [42m]\n"}
+,{"stream_name":"stdout","time":2646.773765825,"data":"    B_thesis n=131 s=2 step 40000 te=1.000 [44m]\n"}
+,{"stream_name":"stdout","time":2649.610535172,"data":"  -\u003e grok 3600 acc 1.0000\n"}
+,{"stream_name":"stdout","time":2649.610961911,"data":"=== B_thesis n=128 seed=0 units_only=False ===\n"}
+,{"stream_name":"stdout","time":2649.643000557,"data":"    B_thesis n=128 s=0 step 0 te=0.014 [44m]\n"}
+,{"stream_name":"stdout","time":2756.375653987,"data":"    B_thesis n=128 s=0 step 10000 te=0.599 [46m]\n"}
+,{"stream_name":"stdout","time":2862.729156369,"data":"    B_thesis n=128 s=0 step 20000 te=0.785 [48m]\n"}
+,{"stream_name":"stdout","time":2969.156869264,"data":"    B_thesis n=128 s=0 step 30000 te=0.809 [49m]\n"}
+,{"stream_name":"stdout","time":3075.688048797,"data":"    B_thesis n=128 s=0 step 40000 te=0.838 [51m]\n"}
+,{"stream_name":"stdout","time":3078.308228764,"data":"  -\u003e grok None acc 0.8376\n"}
+,{"stream_name":"stdout","time":3078.308687566,"data":"=== B_thesis n=128 seed=1 units_only=False ===\n"}
+,{"stream_name":"stdout","time":3078.34082666,"data":"    B_thesis n=128 s=1 step 0 te=0.014 [51m]\n"}
+,{"stream_name":"stdout","time":3184.972466895,"data":"    B_thesis n=128 s=1 step 10000 te=0.375 [53m]\n"}
+,{"stream_name":"stdout","time":3291.332428722,"data":"    B_thesis n=128 s=1 step 20000 te=0.798 [55m]\n"}
+,{"stream_name":"stdout","time":3397.758309841,"data":"    B_thesis n=128 s=1 step 30000 te=1.000 [56m]\n"}
+,{"stream_name":"stdout","time":3504.018636267,"data":"    B_thesis n=128 s=1 step 40000 te=1.000 [58m]\n"}
+,{"stream_name":"stdout","time":3506.716175125,"data":"  -\u003e grok 23400 acc 1.0000\n"}
+,{"stream_name":"stdout","time":3506.716743194,"data":"=== B_thesis n=128 seed=2 units_only=False ===\n"}
+,{"stream_name":"stdout","time":3506.748670754,"data":"    B_thesis n=128 s=2 step 0 te=0.025 [58m]\n"}
+,{"stream_name":"stdout","time":3613.414543103,"data":"    B_thesis n=128 s=2 step 10000 te=0.305 [60m]\n"}
+,{"stream_name":"stdout","time":3719.847484094,"data":"    B_thesis n=128 s=2 step 20000 te=0.867 [62m]\n"}
+,{"stream_name":"stdout","time":3826.148407941,"data":"    B_thesis n=128 s=2 step 30000 te=1.000 [64m]\n"}
+,{"stream_name":"stdout","time":3932.400224128,"data":"    B_thesis n=128 s=2 step 40000 te=1.000 [65m]\n"}
+,{"stream_name":"stdout","time":3934.741763274,"data":"  -\u003e grok 22000 acc 0.9998\n"}
+,{"stream_name":"stdout","time":3934.742043299,"data":"=== B_thesis n=123 seed=0 units_only=False ===\n"}
+,{"stream_name":"stdout","time":3934.77245475,"data":"    B_thesis n=123 s=0 step 0 te=0.008 [65m]\n"}
+,{"stream_name":"stdout","time":4035.722559427,"data":"    B_thesis n=123 s=0 step 10000 te=1.000 [67m]\n"}
+,{"stream_name":"stdout","time":4136.576724058,"data":"    B_thesis n=123 s=0 step 20000 te=1.000 [69m]\n"}
+,{"stream_name":"stdout","time":4237.414821799,"data":"    B_thesis n=123 s=0 step 30000 te=1.000 [70m]\n"}
+,{"stream_name":"stdout","time":4338.285830673,"data":"    B_thesis n=123 s=0 step 40000 te=1.000 [72m]\n"}
+,{"stream_name":"stdout","time":4340.696673896,"data":"  -\u003e grok 8400 acc 1.0000\n"}
+,{"stream_name":"stdout","time":4340.697156995,"data":"=== B_thesis n=123 seed=1 units_only=False ===\n"}
+,{"stream_name":"stdout","time":4340.727345093,"data":"    B_thesis n=123 s=1 step 0 te=0.013 [72m]\n"}
+,{"stream_name":"stdout","time":4441.671220345,"data":"    B_thesis n=123 s=1 step 10000 te=0.994 [74m]\n"}
+,{"stream_name":"stdout","time":4542.550739566,"data":"    B_thesis n=123 s=1 step 20000 te=0.995 [76m]\n"}
+,{"stream_name":"stdout","time":4643.41330548,"data":"    B_thesis n=123 s=1 step 30000 te=0.997 [77m]\n"}
+,{"stream_name":"stdout","time":4744.273024135,"data":"    B_thesis n=123 s=1 step 40000 te=0.997 [79m]\n"}
+,{"stream_name":"stdout","time":4746.700382656,"data":"  -\u003e grok 8800 acc 0.9967\n"}
+,{"stream_name":"stdout","time":4746.700863809,"data":"=== B_thesis n=123 seed=2 units_only=False ===\n"}
+,{"stream_name":"stdout","time":4746.731048382,"data":"    B_thesis n=123 s=2 step 0 te=0.013 [79m]\n"}
+,{"stream_name":"stdout","time":4847.689751579,"data":"    B_thesis n=123 s=2 step 10000 te=0.183 [81m]\n"}
+,{"stream_name":"stdout","time":4948.556223803,"data":"    B_thesis n=123 s=2 step 20000 te=1.000 [82m]\n"}
+,{"stream_name":"stdout","time":5049.410325075,"data":"    B_thesis n=123 s=2 step 30000 te=1.000 [84m]\n"}
+,{"stream_name":"stdout","time":5150.287726087,"data":"    B_thesis n=123 s=2 step 40000 te=1.000 [86m]\n"}
+,{"stream_name":"stdout","time":5152.827266641,"data":"  -\u003e grok 12800 acc 0.9998\n"}
+,{"stream_name":"stdout","time":5152.827680113,"data":"=== B_thesis n=91 seed=0 units_only=False ===\n"}
+,{"stream_name":"stdout","time":5152.847050587,"data":"    B_thesis n=91 s=0 step 0 te=0.012 [86m]\n"}
+,{"stream_name":"stdout","time":5206.409589445,"data":"    B_thesis n=91 s=0 step 10000 te=0.110 [87m]\n"}
+,{"stream_name":"stdout","time":5259.769039311,"data":"    B_thesis n=91 s=0 step 20000 te=0.805 [88m]\n"}
+,{"stream_name":"stdout","time":5312.956909423,"data":"    B_thesis n=91 s=0 step 30000 te=0.938 [88m]\n"}
+,{"stream_name":"stdout","time":5366.189824253,"data":"    B_thesis n=91 s=0 step 40000 te=0.980 [89m]\n"}
+,{"stream_name":"stdout","time":5367.485648013,"data":"  -\u003e grok None acc 0.9802\n"}
+,{"stream_name":"stdout","time":5367.486170574,"data":"=== B_thesis n=91 seed=1 units_only=False ===\n"}
+,{"stream_name":"stdout","time":5367.498293878,"data":"    B_thesis n=91 s=1 step 0 te=0.030 [89m]\n"}
+,{"stream_name":"stdout","time":5420.899949065,"data":"    B_thesis n=91 s=1 step 10000 te=0.080 [90m]\n"}
+,{"stream_name":"stdout","time":5474.175756161,"data":"    B_thesis n=91 s=1 step 20000 te=0.241 [91m]\n"}
+,{"stream_name":"stdout","time":5527.373241282,"data":"    B_thesis n=91 s=1 step 30000 te=0.322 [92m]\n"}
+,{"stream_name":"stdout","time":5580.531844346,"data":"    B_thesis n=91 s=1 step 40000 te=0.364 [93m]\n"}
+,{"stream_name":"stdout","time":5581.823754206,"data":"  -\u003e grok None acc 0.3640\n"}
+,{"stream_name":"stdout","time":5581.824232433,"data":"=== B_thesis n=91 seed=2 units_only=False ===\n"}
+,{"stream_name":"stdout","time":5581.836275813,"data":"    B_thesis n=91 s=2 step 0 te=0.025 [93m]\n"}
+,{"stream_name":"stdout","time":5635.236519963,"data":"    B_thesis n=91 s=2 step 10000 te=0.101 [94m]\n"}
+,{"stream_name":"stdout","time":5688.497261339,"data":"    B_thesis n=91 s=2 step 20000 te=0.143 [95m]\n"}
+,{"stream_name":"stdout","time":5741.776831217,"data":"    B_thesis n=91 s=2 step 30000 te=0.250 [96m]\n"}
+,{"stream_name":"stdout","time":5795.130506521,"data":"    B_thesis n=91 s=2 step 40000 te=0.996 [96m]\n"}
+,{"stream_name":"stdout","time":5796.407656447,"data":"  -\u003e grok 36200 acc 0.9959\n"}
+,{"stream_name":"stdout","time":5796.408288741,"data":"[\n"}
+,{"stream_name":"stdout","time":5796.40830633,"data":"  {\n"}
+,{"stream_name":"stdout","time":5796.408322496,"data":"    \"arm\": \"B_thesis\",\n"}
+,{"stream_name":"stdout","time":5796.408327508,"data":"    \"n\": 123,\n"}
+,{"stream_name":"stdout","time":5796.408331044,"data":"    \"seed\": 0,\n"}
+,{"stream_name":"stdout","time":5796.408334587,"data":"    \"units_only\": false,\n"}
+,{"stream_name":"stdout","time":5796.408338006,"data":"    \"steps\": 40000,\n"}
+,{"stream_name":"stdout","time":5796.408341479,"data":"    \"grok_step\": 8400,\n"}
+,{"stream_name":"stdout","time":5796.408348291,"data":"    \"final_acc_all_pairs\": 1.0,\n"}
+,{"stream_name":"stdout","time":5796.408350686,"data":"    \"final_test_acc\": 1.0,\n"}
+,{"stream_name":"stdout","time":5796.40835303,"data":"    \"elapsed_s\": 4332.5\n"}
+,{"stream_name":"stdout","time":5796.408355252,"data":"  },\n"}
+,{"stream_name":"stdout","time":5796.408357468,"data":"  {\n"}
+,{"stream_name":"stdout","time":5796.408359755,"data":"    \"arm\": \"B_thesis\",\n"}
+,{"stream_name":"stdout","time":5796.408362194,"data":"    \"n\": 123,\n"}
+,{"stream_name":"stdout","time":5796.408364405,"data":"    \"seed\": 1,\n"}
+,{"stream_name":"stdout","time":5796.408366686,"data":"    \"units_only\": false,\n"}
+,{"stream_name":"stdout","time":5796.408368898,"data":"    \"steps\": 40000,\n"}
+,{"stream_name":"stdout","time":5796.408377192,"data":"    \"grok_step\": 8800,\n"}
+,{"stream_name":"stdout","time":5796.408379755,"data":"    \"final_acc_all_pairs\": 0.997686562231476,\n"}
+,{"stream_name":"stdout","time":5796.408382113,"data":"    \"final_test_acc\": 0.9966952800750732,\n"}
+,{"stream_name":"stdout","time":5796.408384575,"data":"    \"elapsed_s\": 4738.5\n"}
+,{"stream_name":"stdout","time":5796.408386799,"data":"  },\n"}
+,{"stream_name":"stdout","time":5796.408389065,"data":"  {\n"}
+,{"stream_name":"stdout","time":5796.408391181,"data":"    \"arm\": \"B_thesis\",\n"}
+,{"stream_name":"stdout","time":5796.408393434,"data":"    \"n\": 123,\n"}
+,{"stream_name":"stdout","time":5796.40839562,"data":"    \"seed\": 2,\n"}
+,{"stream_name":"stdout","time":5796.408397888,"data":"    \"units_only\": false,\n"}
+,{"stream_name":"stdout","time":5796.408400624,"data":"    \"steps\": 40000,\n"}
+,{"stream_name":"stdout","time":5796.408402869,"data":"    \"grok_step\": 12800,\n"}
+,{"stream_name":"stdout","time":5796.408405118,"data":"    \"final_acc_all_pairs\": 0.9998678035560843,\n"}
+,{"stream_name":"stdout","time":5796.408407396,"data":"    \"final_test_acc\": 0.9998111724853516,\n"}
+,{"stream_name":"stdout","time":5796.408409678,"data":"    \"elapsed_s\": 5144.7\n"}
+,{"stream_name":"stdout","time":5796.408411906,"data":"  },\n"}
+,{"stream_name":"stdout","time":5796.408414029,"data":"  {\n"}
+,{"stream_name":"stdout","time":5796.408416156,"data":"    \"arm\": \"B_thesis\",\n"}
+,{"stream_name":"stdout","time":5796.408418378,"data":"    \"n\": 91,\n"}
+,{"stream_name":"stdout","time":5796.40842061,"data":"    \"seed\": 0,\n"}
+,{"stream_name":"stdout","time":5796.408422821,"data":"    \"units_only\": false,\n"}
+,{"stream_name":"stdout","time":5796.408425026,"data":"    \"steps\": 40000,\n"}
+,{"stream_name":"stdout","time":5796.408427224,"data":"    \"grok_step\": null,\n"}
+,{"stream_name":"stdout","time":5796.408429446,"data":"    \"final_acc_all_pairs\": 0.9861127883105905,\n"}
+,{"stream_name":"stdout","time":5796.408431723,"data":"    \"final_test_acc\": 0.9801621437072754,\n"}
+,{"stream_name":"stdout","time":5796.408433975,"data":"    \"elapsed_s\": 5359.3\n"}
+,{"stream_name":"stdout","time":5796.40843618,"data":"  },\n"}
+,{"stream_name":"stdout","time":5796.40843832,"data":"  {\n"}
+,{"stream_name":"stdout","time":5796.408443641,"data":"    \"arm\": \"B_thesis\",\n"}
+,{"stream_name":"stdout","time":5796.408445959,"data":"    \"n\": 91,\n"}
+,{"stream_name":"stdout","time":5796.408448156,"data":"    \"seed\": 1,\n"}
+,{"stream_name":"stdout","time":5796.408450365,"data":"    \"units_only\": false,\n"}
+,{"stream_name":"stdout","time":5796.408452661,"data":"    \"steps\": 40000,\n"}
+,{"stream_name":"stdout","time":5796.408454835,"data":"    \"grok_step\": null,\n"}
+,{"stream_name":"stdout","time":5796.408457241,"data":"    \"final_acc_all_pairs\": 0.5547639174012801,\n"}
+,{"stream_name":"stdout","time":5796.408459686,"data":"    \"final_test_acc\": 0.36398136615753174,\n"}
+,{"stream_name":"stdout","time":5796.408461947,"data":"    \"elapsed_s\": 5573.7\n"}
+,{"stream_name":"stdout","time":5796.408464288,"data":"  },\n"}
+,{"stream_name":"stdout","time":5796.408466397,"data":"  {\n"}
+,{"stream_name":"stdout","time":5796.408468585,"data":"    \"arm\": \"B_thesis\",\n"}
+,{"stream_name":"stdout","time":5796.408470899,"data":"    \"n\": 91,\n"}
+,{"stream_name":"stdout","time":5796.408473139,"data":"    \"seed\": 2,\n"}
+,{"stream_name":"stdout","time":5796.408475331,"data":"    \"units_only\": false,\n"}
+,{"stream_name":"stdout","time":5796.408477559,"data":"    \"steps\": 40000,\n"}
+,{"stream_name":"stdout","time":5796.40847976,"data":"    \"grok_step\": 36200,\n"}
+,{"stream_name":"stdout","time":5796.408481972,"data":"    \"final_acc_all_pairs\": 0.9971017992996015,\n"}
+,{"stream_name":"stdout","time":5796.408484221,"data":"    \"final_test_acc\": 0.9958599209785461,\n"}
+,{"stream_name":"stdout","time":5796.408486483,"data":"    \"elapsed_s\": 5788.2\n"}
+,{"stream_name":"stdout","time":5796.408488689,"data":"  }\n"}
+,{"stream_name":"stdout","time":5796.408490801,"data":"]\n"}
+,{"stream_name":"stderr","time":5801.220852563,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":5801.220916681,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":5801.525144274,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":5801.52517216,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":5802.222611398,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":5803.519319727,"data":"[NbConvertApp] Writing 323852 bytes to __results__.html\n"}
+]

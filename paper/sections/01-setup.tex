@@ -1,0 +1,367 @@
+\section{Setup}
+\label{sec:setup}
+
+\subsection{Task}
+\label{sec:setup-task}
+
+We train a transformer on the multiplication table of $\mathbb{Z}/n\mathbb{Z}$. Each example
+is the token sequence $(a, b, {=})$ with $a, b \in \mathbb{Z}/n\mathbb{Z}$, and the model
+\begin{equation}
+  \label{eq:task}
+  f_{\theta} : (\mathbb{Z}/n\mathbb{Z})^{2} \longrightarrow \mathbb{R}^{n},
+  \qquad
+  \hat{y}(a,b) \;=\; \arg\max_{c} \; f_{\theta}(a,b)_{c},
+  \qquad
+  y(a,b) \;=\; a \cdot b \bmod n ,
+\end{equation}
+is trained by cross-entropy $\mathcal{L}(\theta) = -\frac{1}{|T|}\sum_{(a,b) \in T}
+\log \mathrm{softmax}\bigl(f_{\theta}(a,b)\bigr)_{y(a,b)}$ on a training set $T$, with the
+logits read off the final position. The vocabulary is $n+1$ symbols and the
+output layer has $n$ classes. All $n^{2}$ pairs are enumerated, a fixed random $30\%$ is held
+out for training and the remaining $70\%$ is the test set, so generalisation is measured on
+the majority of the table.
+
+The operation is the whole reason for the setup. Addition modulo $n$ is a group operation:
+every element is invertible, and a network that represents $a$ and $b$ by characters of
+$\mathbb{Z}/n\mathbb{Z}$ can compute $a+b$ by adding phases
+\citep{nanda2023progress}. Multiplication is not a group operation unless $n$ is prime.
+$(\mathbb{Z}/n\mathbb{Z}, \cdot)$ is a commutative monoid; its invertible elements are the
+units
+\begin{equation}
+  \label{eq:units}
+  (\mathbb{Z}/n\mathbb{Z})^{\times} \;=\; \{x : \gcd(x, n) = 1\},
+  \qquad
+  \bigl| (\mathbb{Z}/n\mathbb{Z})^{\times} \bigr| \;=\; \varphi(n),
+\end{equation}
+and every other element is a zero divisor. On the units
+the same phase-addition argument applies in exponent coordinates, and the resulting circuit is
+the discrete-log clock \citep{nguyen2026dlogclock}. Off the units it does not apply at all,
+because there are no local inverses to build characters from. What the network does on the
+$n^{2} - \varphi(n)^{2}$ non-unit pairs is the question this paper is about.
+
+\subsection{Strata}
+\label{sec:setup-strata}
+
+\begin{definition}[Green's $\mathcal{J}$-classes and strata]
+\label{def:jclass}
+Green's relations are the standard structural decomposition of a semigroup
+\citep{howie1995semigroups}. For $d \mid n$ put
+\begin{equation}
+  \label{eq:jclass}
+  J_{d} \;=\; \{x \in \mathbb{Z}/n\mathbb{Z} : \gcd(x, n) = d\},
+  \qquad
+  |J_{d}| \;=\; \varphi(n/d),
+  \qquad
+  \mathbb{Z}/n\mathbb{Z} \;=\; \bigsqcup_{d \mid n} J_{d} .
+\end{equation}
+These are the $\mathcal{J}$-classes of the monoid $(\mathbb{Z}/n\mathbb{Z}, \cdot)$, and they
+compose \emph{exactly}:
+\begin{equation}
+  \label{eq:jcompose}
+  J_{d} \cdot J_{e} \;=\; J_{\gcd(de,\, n)} .
+\end{equation}
+Containment is Theorem~\ref{thm:stratum}: it writes $xy = m\,(w\,uv \bmod q)$ with
+$m = \gcd(de,n)$ and $w\,uv$ a unit modulo $q = n/m$, so $\gcd(xy, n) = m$ for every
+$x \in J_{d}$ and $y \in J_{e}$. Equality then needs only surjectivity: $q$ divides $n/d$,
+so reduction carries $(\mathbb{Z}/(n/d)\mathbb{Z})^{\times}$ onto
+$(\mathbb{Z}/q\mathbb{Z})^{\times}$, and taking $v = 1$ lets $w\,uv$ range over every unit
+modulo $q$. Verified exhaustively at every divisor pair of every $n \le 200$
+($8{,}253$ pairs, $0$ mismatches).
+The induced partition of the $n \times n$ input grid into the blocks
+$J_{d} \times J_{e}$ is what we call its \emph{strata}. A class is \emph{regular} when it
+contains an idempotent, $\exists\, \varepsilon \in J_{d}$ with $\varepsilon^{2} = \varepsilon$,
+the condition under which local inverses, and hence local group characters, exist.
+\end{definition}
+
+\citet{chen2026multiplication}
+prove (their Proposition D.13) that every $\mathcal{J}$-class is regular when $n$ is square-free,
+and state the converse case as the limitation of their work. Non-square-free moduli admit
+non-regular classes containing \emph{nilpotent} elements ($x$ with $x^{k} = 0$ for some
+$k \ge 1$, which exist in $\mathbb{Z}/n\mathbb{Z}$ exactly when $n$ is not square-free), and
+they describe these as breaking the reduction to local group characters. Our implementation reproduces their theorem on their own
+moduli $143$, $154$ and $165$, and finds non-regular classes at exactly the moduli where the
+theorem permits them: the counts for $113, 119, 121, 125, 120$ are $0, 0, 1, 2, 8$
+(\texttt{src/tasks/algebra.py::j\_structure}). Across all $23$ moduli we train, every
+square-free modulus has zero non-regular classes and every non-square-free modulus has at
+least one.
+
+The difference the composition rule makes is visible in one line. For square-free $n$ the
+diagonal is closed and each stratum is a group; for a prime power it descends toward zero:
+\begin{equation}
+  \label{eq:descent}
+  \underbrace{J_{d} \cdot J_{d} = J_{d}}_{n \text{ square-free}}
+  \qquad\text{versus}\qquad
+  \underbrace{J_{11} \cdot J_{11} = \{0\}}_{n = 121}
+  \qquad
+  \underbrace{J_{5} \cdot J_{5} \to J_{25} \to \{0\}}_{n = 125} .
+\end{equation}
+Writing $\nu(n) = \min\{k \ge 1 : x^{k} = 0 \text{ for every nilpotent } x \in
+\mathbb{Z}/n\mathbb{Z}\}$ for the nilpotency depth, $\nu(121) = 2$ and $\nu(125) = 3$. The two
+moduli differ in $\nu$ at nearly identical $\varphi(n)$ and identical model and dataset size,
+which makes them a graded pair rather than two arbitrary composites.
+
+% STE descriptive
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{../figures/F5_descent.pdf}
+  \caption[The square map walks a class down the divisor lattice.]{\textbf{The square map walks a class down the divisor lattice.} Each node is a
+    $\mathcal{J}$-class, placed by the number of prime factors of $d$ counted with
+    multiplicity. Each edge is the map $J_{d} \mapsto J_{\gcd(d^{2},\, n)}$ of
+    \eqref{eq:jcompose}. A teal loop marks a class that squares to itself, which is
+    \eqref{eq:descent}'s square-free case, and a grey edge marks one that does not. Node fill
+    and outline give regularity.\par
+    At $n = 121$ the single non-regular class reaches $\{0\}$ in one step, and at $n = 125$
+    it takes two. That is the difference between $\nu(121) = 2$ and $\nu(125) = 3$ at
+    $\varphi(121) = 110$ against $\varphi(125) = 100$. At $n = 120$ the lattice is wide
+    rather than deep: $16$ classes, $8$ of them non-regular. The figure regenerates from
+    \texttt{src/viz/plots.py::descent\_lattice}, computed from
+    \texttt{src/tasks/algebra.py}.}
+  \label{fig:descent}
+\end{figure}
+% STE end
+
+% STE descriptive
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{../figures/F2_stratification.pdf}
+  \caption[The same operation over five algebras.]{\textbf{The same operation over five algebras.} Each panel is the
+    multiplication table of $\mathbb{Z}/n\mathbb{Z}$ for one of our moduli. Rows and columns
+    are ordered by $\gcd(x, n)$, so each stratum $J_{d} \times J_{e}$ is a rectangle, and
+    cell shade is the $\mathcal{J}$-class of the product. The operation, the architecture and
+    the training budget are identical across the five. So only the algebra of $n$ differs.
+    There is one stratum at a prime, $9$ at $11^{2}$, $16$ at $5^{3}$ and at $7 \cdot 17$,
+    and $256$ at $2^{3} \cdot 3 \cdot 5$.\par
+    Red outlines mark non-regular classes, which occur at exactly the three non-square-free
+    moduli and at neither square-free one. That is Proposition D.13 of
+    \citet{chen2026multiplication}, drawn. The figure regenerates from
+    \texttt{src/viz/plots.py::stratification}, computed from \texttt{src/tasks/algebra.py}.}
+  \label{fig:stratification}
+\end{figure}
+% STE end
+
+\subsection{A stratum is multiplication in a smaller ring}
+\label{sec:setup-theorem}
+
+The reduction to local characters does not in fact break. It relocates, and two statements
+say where to: first the indexing that makes a non-regular class usable, then the identity that
+says what multiplication does in it.
+
+\begin{proposition}[$\mathcal{J}$-classes are torsors under the \emph{local} units]
+\label{prop:torsor}
+For every $d \mid n$ the map
+\begin{equation}
+  \label{eq:torsor}
+  \iota_{d} : (\mathbb{Z}/(n/d)\mathbb{Z})^{\times} \longrightarrow J_{d},
+  \qquad u \longmapsto d\,u \bmod n ,
+\end{equation}
+is a bijection, and it is defined whether or not $J_{d}$ is regular.
+\end{proposition}
+
+\begin{proof}
+Since $d \mid n$ we have $\gcd(du, n) = d \cdot \gcd(u, n/d)$, which is $d$ exactly when
+$\gcd(u, n/d) = 1$; so $\iota_{d}$ lands in $J_{d}$. Conversely any $x \in J_{d}$ is
+$d\,(x/d)$ with $\gcd(x/d, n/d) = 1$. The two constructions are mutually inverse modulo
+$n/d$, and counting gives $|J_{d}| = \varphi(n/d)$, which is \eqref{eq:jclass}.
+\end{proof}
+
+Proposition~\ref{prop:torsor} asks nothing of $J_{d}$ beyond being a $\mathcal{J}$-class. A
+regular class is a group and carries its own characters. A non-regular class is not a group
+and has none, but it is still a set on which the \emph{local} units
+$(\mathbb{Z}/(n/d)\mathbb{Z})^{\times}$ act simply transitively, and
+\eqref{eq:torsor} is that action written as a coordinate. The theorem says what
+multiplication looks like in that coordinate.
+
+\begin{theorem}[Stratum identity]
+\label{thm:stratum}
+Let $x \in J_{d}$ and $y \in J_{e}$, and write $x = d\,u$, $y = e\,v$ as in
+\eqref{eq:torsor}. Put
+\begin{equation}
+  \label{eq:mw}
+  m \;=\; \gcd(de,\, n), \qquad de \;=\; m\,w, \qquad q \;=\; n/m .
+\end{equation}
+Then $d \mid m$, $\;e \mid m$, $\;\gcd(w, q) = 1$, $\;uv$ is a unit modulo $q$, and
+\begin{equation}
+  \label{eq:stratum}
+  x \cdot y \bmod n \;=\; m \cdot \bigl( w \cdot (u v) \bmod q \bigr).
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Fix a prime $p$ and write $\alpha = v_{p}(de)$, $\beta = v_{p}(n)$ for the $p$-adic
+valuations. By \eqref{eq:mw}, $v_{p}(m) = \min(\alpha, \beta)$, hence
+\begin{equation}
+  \label{eq:valuations}
+  v_{p}(w) \;=\; \max(\alpha - \beta,\, 0),
+  \qquad
+  v_{p}(q) \;=\; \max(\beta - \alpha,\, 0) .
+\end{equation}
+At most one of the two is positive, so no prime divides both $w$ and $q$, giving
+$\gcd(w, q) = 1$.
+
+Since $d \mid de$ and $d \mid n$ we have $d \mid \gcd(de, n) = m$, and likewise $e \mid m$;
+therefore $q = n/m$ divides both $n/d$ and $n/e$. As $\gcd(u, n/d) = 1$ and
+$\gcd(v, n/e) = 1$, reduction gives $\gcd(u, q) = \gcd(v, q) = 1$, so $uv$ is a unit
+modulo $q$.
+
+For the identity, $xy = (du)(ev) = m\,w\,uv$ as integers, and for any integer $t$ and any
+$m \mid n$,
+\begin{equation}
+  \label{eq:mscale}
+  (m t) \bmod n \;=\; (m t) \bmod (m q) \;=\; m \cdot (t \bmod q),
+\end{equation}
+since subtracting a multiple of $mq$ from $mt$ subtracts a multiple of $q$ from $t$. Applying
+\eqref{eq:mscale} with $t = w\,uv$ gives \eqref{eq:stratum}.
+\end{proof}
+
+Three consequences follow, and every per-stratum measurement in this
+paper is built on them.
+
+\begin{enumerate}
+  \item \emph{A stratum is multiplication in a smaller ring.} By \eqref{eq:stratum} the
+    block $J_{d} \times J_{e}$ computes $(u,v) \mapsto w \cdot (uv)$ in
+    $\mathbb{Z}/q\mathbb{Z}$, a fixed unit relabelling by $w$ of multiplication carried on the
+    \emph{local group}
+    \begin{equation}
+      \label{eq:localgroup}
+      G_{m} \;=\; (\mathbb{Z}/q\mathbb{Z})^{\times}, \qquad q = n/m, \qquad |G_{m}| = \varphi(q).
+    \end{equation}
+  \item \emph{The target is constant on fibres.} Reduction modulo $q$ gives a surjection
+    \begin{equation}
+      \label{eq:fibration}
+      \pi_{d} : (\mathbb{Z}/(n/d)\mathbb{Z})^{\times} \twoheadrightarrow G_{m},
+      \qquad
+      y\bigl(\iota_{d}(u), \iota_{e}(v)\bigr) \;=\; m \cdot \bigl(w \, \pi_{d}(u)\pi_{e}(v)\bigr),
+    \end{equation}
+    so the target depends on $(u,v)$ only through $\bigl(\pi_{d}(u), \pi_{e}(v)\bigr)$. A
+    stratum therefore has $|G_{m}|$ distinct targets and $\varphi(n/d)\,\varphi(n/e) \ge
+    |G_{m}|$ cells, and the collapse is exactly this fibration.
+  \item \emph{A clock must sit on the diagonal.} Writing $G_{m} \cong \mathbb{Z}_{o_{1}}
+    \times \cdots \times \mathbb{Z}_{o_{r}}$ and indexing each unit by its exponent tuple,
+    multiplication in $G_{m}$ is addition of tuples, so a character circuit on this stratum
+    places its logit energy on the diagonal
+    \begin{equation}
+      \label{eq:diagonal}
+      \Delta \;=\; \bigl\{ (\kappa, \kappa) : \kappa \in \widehat{G_{m}} \bigr\}
+      \;\subset\; \widehat{G_{m}} \times \widehat{G_{m}},
+      \qquad |\Delta| = |G_{m}| ,
+    \end{equation}
+    in that stratum's \emph{own} local-group coordinates, not in the raw residue
+    coordinates of $\mathbb{Z}/n\mathbb{Z}$, where the components of $a+b$ and $a-b$ have no
+    meaning on a multiplication task.
+\end{enumerate}
+
+$\Delta$ is fixed by the algebra before any data is seen, which is what lets
+Section~\ref{sec:strata} ablate it without choosing it.
+
+% STE descriptive
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{../figures/F1_stratum.pdf}
+  \caption[Theorem~\ref{thm:stratum}, and the limitation it answers.]{\textbf{Theorem~\ref{thm:stratum}, and the limitation it answers.}
+    \emph{Top left:} at a square-free modulus every $\mathcal{J}$-class is regular, so
+    $J_{3} \cdot J_{3} = J_{3}$ is closed and $J_{3}$ is a group, with identity $6$.
+    \emph{Top right:} at $n = 20 = 2^{2} \cdot 5$ the class $J_{2}$ contains no idempotent.
+    It is not a group and has no characters of its own, and $J_{2} \cdot J_{4} = J_{4}$
+    leaves it. That is the case \citet{chen2026multiplication} exclude.\par \emph{Bottom:} the
+    outlined stratum, unfolded. The substitution $x = 2u$ and $y = 4v$ of \eqref{eq:torsor}
+    puts the same $16$ cells in torsor coordinates (panel 2). Each entry there is
+    $w\,uv \bmod q$ with $m = 4$, $w = 2$ and $q = 5$. Multiplication by $m$ returns panel 1
+    cell for cell, which is \eqref{eq:stratum}. The $16$ cells take $4$ distinct values,
+    the order of the local group $G_{m} = (\mathbb{Z}/5\mathbb{Z})^{\times}$, and that
+    collapse is the fibration \eqref{eq:fibration}. In $G_{m}$'s exponent coordinate
+    multiplication is addition of $\kappa$ (panel 3), which is why a character circuit on
+    this stratum sits on the diagonal \eqref{eq:diagonal}.\par
+    Cell colour is the product and
+    is identical in panels 1 and 2 because the identity holds cell by cell. The cell
+    $x = 6$, $y = 12$ is ringed in all three. The figure regenerates from
+    \texttt{src/viz/plots.py::stratum\_theorem}. Every value is computed from
+    \texttt{src/tasks/algebra.py}, and the generator asserts \eqref{eq:stratum} and the
+    non-regularity of $J_{2}$ on the block it draws.}
+  \label{fig:stratum}
+\end{figure}
+% STE end
+
+Nilpotents are what let $m = \gcd(de, n)$ rise to its ceiling $d\,e$ and drive
+$n/m$ down; in the limit $n/m = 1$ and the stratum collapses onto the trivial group, which is
+the ``one-way collapse'' of \citet{chen2026multiplication}. The collapse removes structure by
+shrinking the local group. It does not replace character structure with something else.
+
+Equation~\eqref{eq:stratum} is proved above. It is \emph{also} checked by exhaustion, because
+a proof and an implementation can disagree. \texttt{algebra.py} verifies both clauses for
+every one of the $n^{2}$ pairs at $n \in \{113, 121, 125, 120\}$ (the field, the two $p$-adic
+chains and the widest divisor lattice in our set) as part of the repository's self-check
+suite.
+
+\subsection{Moduli}
+\label{sec:setup-moduli}
+
+Table~\ref{tab:moduli} is the set of moduli we train, and every later section refers back to
+it. It extends Table~1 of \citet{chen2026multiplication} (modulus, prime decomposition,
+$\omega(n)$, square-free) with the properties this paper separates results by: whether the
+unit group is cyclic, $\varphi(n)$, zero-divisor density, the $\mathcal{J}$-class count and how
+many of those classes are non-regular.
+
+Of the $23$ moduli, $14$ are non-square-free and $6$ are prime powers, against the four
+square-free moduli of \citet{chen2026multiplication}. The prime powers need two clauses rather
+than one, because $n = 128 = 2^{7}$ is the only one whose unit group is non-cyclic:
+$(\mathbb{Z}/128\mathbb{Z})^{*} \cong \mathbb{Z}_{2} \times \mathbb{Z}_{32}$, so it has no
+discrete log, and a discrete-log statistic is not merely unmeasured there but undefined.
+Results stated in discrete-log coordinates therefore cover the \emph{five cyclic} prime powers
+$49, 81, 121, 125, 169$; the sixth is reached in exponent-tuple coordinates in
+Section~\ref{sec:causal-128}.
+
+% STE descriptive
+\begin{table}[t]
+  \centering
+  \small
+  \begin{tabular}{rlcccrrrrc}
+    \toprule
+    $n$ & factorisation & $\omega(n)$ & sq.-free & cyclic & $\varphi(n)$ & zdd &
+      $|\mathcal{J}|$ & non-reg. & grokked \\
+    \midrule
+    49 & $7^{2}$ & 1 & \no & \yes & 42 & 0.143 & 3 & 1 & 0/3 \\
+    54 & $2 \cdot 3^{3}$ & 2 & \no & \yes & 18 & 0.667 & 8 & 4 & 1/3 \\
+    63 & $3^{2} \cdot 7$ & 2 & \no & \no & 36 & 0.429 & 6 & 2 & 1/3 \\
+    75 & $3 \cdot 5^{2}$ & 2 & \no & \no & 40 & 0.467 & 6 & 2 & 2/3 \\
+    81 & $3^{4}$ & 1 & \no & \yes & 54 & 0.333 & 5 & 3 & 3/3 \\
+    91 & $7 \cdot 13$ & 2 & \yes & \no & 72 & 0.209 & 4 & 0 & 1/3 \\
+    98 & $2 \cdot 7^{2}$ & 2 & \no & \yes & 42 & 0.571 & 6 & 2 & 3/3 \\
+    99 & $3^{2} \cdot 11$ & 2 & \no & \no & 60 & 0.394 & 6 & 2 & 2/3 \\
+    100 & $2^{2} \cdot 5^{2}$ & 2 & \no & \no & 40 & 0.600 & 9 & 5 & 2/3 \\
+    105 & $3 \cdot 5 \cdot 7$ & 3 & \yes & \no & 48 & 0.543 & 8 & 0 & 3/3 \\
+    113 & $113$ & 1 & \yes & \yes & 112 & 0.009 & 2 & 0 & 5/5 \\
+    119 & $7 \cdot 17$ & 2 & \yes & \no & 96 & 0.193 & 4 & 0 & 5/5 \\
+    120 & $2^{3} \cdot 3 \cdot 5$ & 3 & \no & \no & 32 & 0.733 & 16 & 8 & 5/5 \\
+    121 & $11^{2}$ & 1 & \no & \yes & 110 & 0.091 & 3 & 1 & 5/5 \\
+    123 & $3 \cdot 41$ & 2 & \yes & \no & 80 & 0.350 & 4 & 0 & 3/3 \\
+    125 & $5^{3}$ & 1 & \no & \yes & 100 & 0.200 & 4 & 2 & 4/5 \\
+    127 & $127$ & 1 & \yes & \yes & 126 & 0.008 & 2 & 0 & 3/3 \\
+    128 & $2^{7}$ & 1 & \no & \no & 64 & 0.500 & 8 & 6 & 2/3 \\
+    131 & $131$ & 1 & \yes & \yes & 130 & 0.008 & 2 & 0 & 3/3 \\
+    143 & $11 \cdot 13$ & 2 & \yes & \no & 120 & 0.161 & 4 & 0 & 3/3 \\
+    147 & $3 \cdot 7^{2}$ & 2 & \no & \no & 84 & 0.429 & 6 & 2 & 3/3 \\
+    165 & $3 \cdot 5 \cdot 11$ & 3 & \yes & \no & 80 & 0.515 & 8 & 0 & 5/5 \\
+    169 & $13^{2}$ & 1 & \no & \yes & 156 & 0.077 & 3 & 1 & 3/3 \\
+    \bottomrule
+  \end{tabular}
+  \caption[The $23$ moduli.]{The $23$ moduli. \texttt{zdd} is zero-divisor density,
+    $(n - \varphi(n))/n$, with $0$ counted. $|\mathcal{J}|$ is the number of Green's
+    $\mathcal{J}$-classes, and \emph{non-reg.} is how many of those are non-regular. The
+    latter is $0$ at every square-free modulus and positive at every non-square-free one, as
+    \citet{chen2026multiplication} Proposition D.13 requires. \emph{grokked} counts seeds that
+    reach test accuracy above $0.99$ under the single protocol of
+    Section~\ref{sec:setup-training} ($30\%$ training fraction, $40{,}000$ steps).\par
+    It excludes the arms that vary a hyperparameter. A run is classified by the median of its
+    final ten logged samples, never by its last sample. Every column regenerates from
+    \texttt{scripts/modulus\_table.py}.}
+  \label{tab:moduli}
+\end{table}
+% STE end
+
+The algebraic columns are computed, not tabulated: cyclicity is decided by an explicit
+primitive-root search and $\mathcal{J}$-class regularity by searching each class for an
+idempotent, and both are asserted against the design table in the repository's self-check
+suite. Three claims in this project were lost to a confound between a grouping variable and a
+size that travelled with it. The counts in Table~\ref{tab:moduli} ($\varphi(n)$, class size,
+zero-divisor density) are exactly the sizes involved. A table that is regenerated rather than copied is the cheapest defence
+available against the next one.

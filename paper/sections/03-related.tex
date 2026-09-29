@@ -1,0 +1,151 @@
+\section{Related work}
+\label{sec:related}
+
+% STE descriptive
+Table~\ref{tab:methods} compares the seven studies closest to this one. It gives the task, the
+algebra, the moduli, the coordinates of the analysis and the kind of evidence that each study
+reports.
+
+\begin{table}[t]
+  \centering
+  \footnotesize
+  \caption{\textbf{What each method can see.} Each row is one study, and every cell comes
+    from that study's PDF. The evidence column gives the tests that the study reports. A null
+    arm is a control condition for which the account predicts no effect. ``Not stated'' means
+    that the PDF does not contain the word pre-registration.}
+  \label{tab:methods}
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{1.15}
+  \begin{tabular}{L{0.10\textwidth} L{0.055\textwidth} L{0.12\textwidth} L{0.14\textwidth}
+      L{0.13\textwidth} L{0.15\textwidth} L{0.12\textwidth} L{0.075\textwidth}}
+    \toprule
+    study & task & algebra & moduli (square-free?) & coordinates & evidence & null arm & pre-reg. \\
+    \midrule
+    \citet{nanda2023progress} & $a + b$ & $\mathbb{Z}/p\mathbb{Z}$ under $+$ & $113$, $53$, $109$ (primes) & Fourier basis & logit ablation; activation replacement & non-key frequencies & not stated \\
+    \citet{zhong2023clock} & $a + b$ & $\mathbb{Z}/p\mathbb{Z}$ under $+$ & $59$ (prime) & Fourier basis; principal components & correlational; rank-2 embedding replacement & none reported & not stated \\
+    \citet{chughtai2023toy} & $a b$ in a group & finite groups & $C_{113}$, $C_{118}$ (square-free), and five non-cyclic groups & irreducible representations & logit ablation; activation replacement & directions predicted to be noise & not stated \\
+    \citet{nguyen2026dlogclock} & $a \cdot b$ & $(\mathbb{Z}/p\mathbb{Z})^{*}$ & $113$; ten primes from $59$ to $113$ & discrete-log characters & correlational & none reported & not stated \\
+    \citet{chen2026multiplication} & $a \cdot b$ & the monoid $(\mathbb{Z}/n\mathbb{Z}, \cdot)$ & $113$, $143$, $154$, $165$ (all square-free) & characters of each $\mathcal{J}$-class group & correlational, in their words & random vocabulary subsets & not stated \\
+    \citet{hwang2026pfe} & $a + b$ & $\mathbb{Z}/N\mathbb{Z}$ under $+$, by CRT & primes; ten composites from $15$ to $385$ (all square-free) & prime-indexed Fourier features, fixed & input-channel ablation, MLP classifier & irrelevant channels; shuffled features & not stated \\
+    this work & $a \cdot b$ & the monoid $(\mathbb{Z}/n\mathbb{Z}, \cdot)$ & $23$ moduli, $14$ not square-free & characters of each stratum's local group $G_{m}$ & logit ablation; weight intervention at $n = 113$, $121$ & random character sets & $9$ of the $14$ rows of Table~\ref{tab:glance} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+% STE end
+
+\paragraph{Grokking as an instrument.} \citet{power2022grokking} established the phenomenon:
+on small algorithmic datasets, generalisation can appear long after the training set is fit,
+and the smaller the training fraction the longer the delay. That paper claims a testbed rather
+than a mechanism, and the testbed is what the literature since has used.
+\citet{nanda2023progress} supplied the mechanism for $a + b \bmod n$ by reverse-engineering a
+one-layer transformer completely: the network embeds inputs in Fourier features, adds phases
+through the attention and MLP, and reads out with a trigonometric identity, confirmed by
+ablations in Fourier space. Their restricted and excluded losses are the ablation protocol we
+use, in a coordinate they did not need.
+
+\paragraph{The algorithm is not inevitable.} \citet{zhong2023clock} showed that the Clock
+algorithm is not the only one a network may find on the same task: a Pizza algorithm is
+prevalent under other hyperparameters, algorithmic phase transitions exist, and networks
+sometimes ensemble. \citet{chughtai2023toy} generalised the setting to arbitrary finite groups
+and found universality to be two-level: the circuit \emph{family} is characterisable by
+representation theory, while the particular circuit and the order in which it develops are
+arbitrary. Their paired-ablation design, testing both the signal the theory predicts and the
+noise it predicts, is the standard we hold our own ablations to.
+\citet{stander2024cosets} analyse the same territory through cosets.
+
+\paragraph{Multiplication and the basis.} Multiplication modulo $n$ resisted this treatment
+for a simple reason: in raw residue coordinates a grokked multiplicative model has a dense
+spectrum. That observation is \citet{furuta2024towards}'s, whose Section~5.2 reports that
+multiplication ``leverages all frequencies'' with cosine-biased components, against the sparse
+key-frequency picture addition gives.
+\citet{nguyen2026dlogclock} showed the density is a basis artefact. Re-analysed
+in the multiplicative character basis, where discrete log turns multiplication into addition,
+the same model is sparse, and they report $\mathrm{Gini}\ 0.58$ against $0.07$, four key
+frequencies, and $96.9\%$ of neurons single-frequency. Section~\ref{sec:calib} replicates
+their spectral statistics and withdraws one clause of our own earlier replication.
+\citet{doshi2024grokking} classify which modular polynomials are learnable and offer it as a
+hypothesis with supporting evidence; their inverse participation ratio is a third convention,
+reciprocal and bounded in $[0,1]$, which is why Section~\ref{sec:methods-sparsity} states ours
+explicitly. \citet{furuta2024towards} and \citet{kunin2024getrich} supply the initialisation
+and lazy-to-rich picture our initialisation control follows.
+The lesson generalises past spectra, and we state it because the cost is easy to underestimate:
+\emph{any} diagnostic calibrated on addition can read a multiplicative model as structureless
+while the structure is present in exponent coordinates. We hit this ourselves. The same
+grokked model's top eight logit components read $17.0\%$ ``$a+b$'' raw and $98.4\%$ in discrete-log coordinates
+(\S\ref{sec:methods-sparsity}), and we record it as a methodological hazard rather than a
+finding about multiplication.
+
+\paragraph{Divisor structure is something these models already organise around.}
+Before any character account, \citet{charton2024learning} trained transformers to compute
+$\gcd(a, b)$ and characterised their predictions completely. The model learns a set $D$ of
+integers and returns the largest element of $D$ dividing both inputs, so that every pair
+sharing a $\gcd$ receives the same output, \emph{including where that output is wrong}.
+The equivalence structure therefore sits in the computation rather than only in the target.
+That is the same shape as Consequence~2 of Theorem~\ref{thm:stratum}, reached on a different
+task, in base-$10$ digit coordinates, and with no representation-theoretic model; our fibre
+residual \eqref{eq:resid} is the quantitative version of the constancy he observes
+qualitatively. We read it as independent evidence that divisor classes are a structure these
+models find, and note that he also reports small primes being grokked only after extended
+training.
+
+\paragraph{The stratified framing, which is not ours.}
+\citet{chen2026multiplication} extend the character account past the group case. Where global
+invertibility fails they model $(\mathbb{Z}/n\mathbb{Z}, \cdot)$ as a monoid, show that
+group-character-style computation \emph{localises to disjoint algebraic strata that partition
+the input space}, identify those strata with Green's $\mathcal{J}$-classes, and demonstrate
+class-sensitive attention routing. They do so on four moduli, $113$, $143$, $154$ and $165$,
+every one of which their Table~1 marks square-free. Their Theorem~3.4 requires each class to \emph{be} a group,
+\begin{equation}
+  \label{eq:chen}
+  J_{d} \;\cong\; (\mathbb{Z}/(n/d)\mathbb{Z})^{\times}
+  \quad\text{with a local identity } e_{J_{d}} \text{ and a local inverse } c^{\sharp},
+\end{equation}
+and their account of the read-out, developed in their Section~4 rather than in
+Theorem~3.4, evaluates $\mathrm{Logit}(c) \propto \chi_{\rho_{d}}(a\,b\,c^{\sharp})$ on that
+group. A non-regular class supplies neither: with no idempotent there is no $c^{\sharp}$.
+Proposition~\ref{prop:torsor} replaces the isomorphism in \eqref{eq:chen} by a
+\emph{bijection} that needs no group structure, and Theorem~\ref{thm:stratum} recovers the
+character account on $G_{m}$ instead of on $J_{d}$. This is not a counterexample to Clifford--Munn--Ponizovski\u{\i}. CMP
+\citep{steinberg2016monoids}, which \citet{chen2026multiplication} state as their
+Theorem~D.16, says that the irreducible representations of a finite monoid are indexed by the
+\emph{regular} $\mathcal{J}$-classes: a non-regular class contributes none, and no argument
+here disputes that. What Theorem~\ref{thm:stratum} factors through $G_{m}$ is the
+\emph{function the network has to compute} on a stratum, not the monoid's representation
+theory. The characters we measure are characters of the local group $G_{m}$, which is a
+genuine group; they are not irreps of $(\mathbb{Z}/n\mathbb{Z}, \cdot)$ attached to a
+non-regular class, and the reduction does not require any. What is new here is not a stronger theorem but a wider one, and the width is the
+contribution. Proposition~\ref{prop:torsor} trades a group isomorphism for a bijection of
+sets: weaker hypotheses and a weaker conclusion, which is a different statement and not a
+strengthening of their Theorem~3.4, and we do not claim it as one. Two things follow that
+their theorem does not give. \emph{First, non-vacuity exactly where theirs is vacuous.}
+\eqref{eq:chen} asks $J_{d}$ to be a group, so at a non-square-free modulus it is silent on
+precisely the classes that make such a modulus interesting: $8$ of the $16$ at $n = 120$,
+and the ones containing the nilpotents. \eqref{eq:torsor} and Theorem~\ref{thm:stratum}
+are stated for every $d \mid n$ and ask nothing beyond $\mathcal{J}$-classhood. \emph{Second, cross-stratum composition.}
+Theorem~\ref{thm:stratum} is a statement about the pair $J_{d} \times J_{e}$ for all
+$d, e$, which their Theorem~3.4 does not address even in the square-free case. It says which
+class a block lands in, \eqref{eq:jcompose}, and which local group carries the
+multiplication once it is there, \eqref{eq:stratum}. That is the statement our
+measurements use, because the strata of the input grid are \emph{blocks} and not
+classes, and every per-stratum number in Section~\ref{sec:strata} is measured on a block.
+The framing is theirs, and this
+paper is its completion, not its rediscovery. They state two limitations of their own result in their own
+words: that their evidence is only correlational, and that non-square-free moduli introduce
+non-regular $\mathcal{J}$-classes containing nilpotent elements, which they describe as
+breaking the reduction to local group characters. Sections~\ref{sec:causal} and
+\ref{sec:strata} supply the two.
+
+The relation to \citet{chughtai2023toy} is worth naming precisely, because it is the shape of
+our result. They argue universality is two-level: the circuit family invariant, the specific
+circuit arbitrary. What we add is that for $a \cdot b \bmod n$ the two levels are
+\emph{algebraic}: the family is the character clock, and the index set is fixed by the
+stratum's own local group.
+
+\paragraph{The CRT connection is not ours either.} \citet{hwang2026pfe} supply a
+prime-indexed embedding and prove block-diagonality by Schur's lemma, with an ablation carrying
+a null arm: task-relevant channels drop $0.60$--$0.92$ while irrelevant channels sit at or
+below the noise floor. Theirs is the basis \emph{supplied}. What Section~\ref{sec:crt-law}
+adds is that the equivalent structure is \emph{learned} rather than imposed, on
+\emph{multiplication} rather than addition, and at \emph{non-square-free} moduli, where the
+predicted set is built from maximal prime powers rather than primes and the distinction is
+testable.

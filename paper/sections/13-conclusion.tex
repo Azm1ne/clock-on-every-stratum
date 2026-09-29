@@ -1,0 +1,23 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+A transformer trained on $a \cdot b \bmod n$ partitions its input space into algebraic strata
+and runs the same character-based clock on each one, on that stratum's own local group. What
+the algebra of $n$ changes is not the mechanism but how many strata there are and how they
+nest. This supplies the two limitations \citet{chen2026multiplication} state for their own
+square-free, correlational result. The reduction to local characters does not break at
+non-square-free moduli but relocates to a smaller group. And the frequencies the mechanism
+uses are load-bearing rather than merely present: at all $157$ stratum-measurements, in
+$28$ of $29$ further single-modulus runs with the exception named in
+Section~\ref{sec:causal}, and at all six prime powers. That second answer is an ablation
+of the saved logit spectrum, which is the first of the two instruments they ask for. It
+bounds what the output depends on, not which component computes it. At $n = 113$ and at
+the non-square-free $n = 121$ we also supply the second: deleting those characters from the
+embedding and running the network forward takes unit-grid accuracy to $0.0120$ or below
+(Section~\ref{sec:causal-internal}). That holds at two moduli, which do not extend to the
+other twenty-one.
+
+What it does not supply is a progress measure. The clearest early signal we found rises
+monotonically in runs that never generalise, and the criterion our own pre-registration named
+primary passes on every failed measurement we scored it against. Both are reported here,
+because a statistic that fires on failures is not evidence whatever it does on successes.

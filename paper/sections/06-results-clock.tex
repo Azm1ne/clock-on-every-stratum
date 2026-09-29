@@ -1,0 +1,251 @@
+\section{Grokking, and the clock at prime powers}
+\label{sec:clock}
+
+Table~\ref{tab:glance} lists the results of this section and the next three, each with the
+criterion it was scored against and its status in the claim ledger of
+Appendix~\ref{app:ledger}.
+
+% STE descriptive
+\begin{table}[t]
+  \centering
+  \footnotesize
+  \caption{\textbf{The results at a glance.} Each row gives a claim, the section that
+    reports it, its criterion, the outcome and the scale of the evidence. The status column
+    is copied from the claim ledger of Appendix~\ref{app:ledger}. A criterion marked
+    ``pre-reg.'' was committed before the data it scores existed.}
+  \label{tab:glance}
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{l p{0.24\textwidth} l p{0.19\textwidth} p{0.19\textwidth} l}
+    \toprule
+    & claim & \S & criterion & outcome & status \\
+    \midrule
+    C3 & models grok at most moduli & \ref{sec:clock-grok} & test acc.\ $> 0.99$ & $19$ of $23$ moduli & verified \\
+    C6 & the clock survives prime powers & \ref{sec:clock-primepowers} & $\Delta < 0.10$, pre-reg. & five cyclic prime powers & verified \\
+    C35 & $n = 113$ is not special & \ref{sec:clock-primes} & $\Delta < 0.10$, pre-reg. & $\Delta \le 0.0250$ at $127$, $131$ & verified \\
+    C31 & the clock is in the neurons & \ref{sec:clock-neurons} & $\mathrm{tune} > 0.85$, pre-reg. & $K_{h} = K_{W}$ in $14$ of $14$ runs & verified \\
+    C21 & the circuit uses the key frequencies & \ref{sec:clock-circuit} & top-eight $a+b$ energy & $98.37$--$100.00\%$ & verified \\
+    C22 & logit ablation at prime powers & \ref{sec:causal-primepowers} & $\hat{p} < 0.01$ & $5/5$ at six moduli & verified, 5 seeds \\
+    C23 & the same with no discrete log & \ref{sec:causal-nodlog} & $\hat{p} < 0.01$ & $28$ of $29$ runs & verified \\
+    C36 & the same at $2^{7}$ & \ref{sec:causal-128} & $\hat{p} < 0.01$, pre-reg. & $\hat{p} = 1.0 \times 10^{-4}$ in $2/2$ & verified \\
+    C32 & the same at three initialisations & \ref{sec:causal-init} & $\hat{p} < 0.01$ & $24/24$ & verified \\
+    C39, C40 & key characters in the weights & \ref{sec:causal-internal} & three inherited criteria, pre-reg. & $3/3$ seeds at $113$ and $121$ & verified \\
+    C33 & every stratum runs a clock & \ref{sec:strata-result} & G0 $\wedge$ G2 $\wedge$ G5, pre-reg. & $157$ measurements, $32$ strata & verified, 5 seeds \\
+    C38 & the same clock across strata & \ref{sec:strata-sameness} & agreement $\ge 0.80$, pre-reg. & $158/160$ pairs & verified, 5 seeds$^{\dagger}$ \\
+    C8 & additive key frequencies are $P(n)$ & \ref{sec:crt-law} & permutation $p < 0.01$, pre-reg. & $9$ of $9$ moduli, $3/3$ seeds & verified \\
+    C37 & $\omega(n)$ at matched zero-divisor density & \ref{sec:crt-omega} & confirmatory, pre-reg. & $+0.804$ and $+0.578$ & confirmatory \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+% STE end
+
+\subsection{Where models grok, and why the exceptions are not algebraic}
+\label{sec:clock-grok}
+
+Under the single protocol of Section~\ref{sec:setup-training}, models grok in a majority of
+seeds at $19$ of the $23$ moduli of Table~\ref{tab:moduli} (Figure~\ref{fig:grok}).
+Generalisation to the held-out $70\%$ arrives long after the training split is fit. Only one modulus, $n = 49$, fails in
+every seed. The four exceptions are $n = 49$ ($0/3$), $54$ ($1/3$), $63$ ($1/3$) and $91$
+($1/3$).
+
+Three of the four were pre-registered as dataset-size nulls before they were run, and a sweep
+of the training fraction confirms it. At $\mathrm{train\_frac} \in \{0.30, 0.50, 0.80\}$:
+
+\begin{center}
+\begin{tabular}{lccc}
+  \toprule
+  $n$ & $0.30$ & $0.50$ & $0.80$ \\
+  \midrule
+  $49 = 7^{2}$ & 0/3 & 2/3 (+1 near-grok) & \textbf{3/3} \\
+  $54 = 2 \cdot 3^{3}$ & 1/3 & \textbf{3/3} & \textbf{3/3} \\
+  $63 = 3^{2} \cdot 7$ & 1/3 & \textbf{3/3} & \textbf{3/3} \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+The progression is monotone and no modulus resists. At $0.30$ these three hold $720$, $874$
+and $1{,}190$ training examples, which is the critical-dataset-size regime
+\citep{power2022grokking}; the obstruction is the size of the training split, not the algebra
+of $n$. We state this because the alternative reading, that certain algebraic structures resist
+grokking, is the interesting one, and it is wrong.
+
+The fourth, $n = 91 = 7 \cdot 13$, is not explained by training-set size, and we record that
+as a failed prediction of our own. Its modulus set was chosen by calibrating against the
+observed transition at roughly $1{,}700$--$2{,}000$ training examples, and $91$ has $2{,}484$,
+above $n = 81$, which groks $3/3$. It grokked $1/3$, with one further seed at
+accuracy $0.976$, a near-grok that is counted as neither. Training-set size alone does not
+predict grokability.
+
+Grokking time is not interpretable from a single seed, and we do not interpret it. Across
+five seeds at one modulus grokking time spans $6{,}600$ to $24{,}800$ steps, a factor of
+$3.8$. One earlier claim of ours about the ordering of grokking times across moduli was
+retracted for exactly this reason. A second was retracted because normalising grokking time by
+$\varphi(n)$ manufactured an ordering. Raw steps \emph{decrease} with $\varphi$
+($\rho = -0.665$), so dividing by $\varphi$ over-corrects and produces
+$\rho(-\varphi, \text{steps}/\varphi) = +0.870$ over $15$ moduli. No algebraic property in
+Table~\ref{tab:moduli} predicts grokking time in this data.
+
+% STE descriptive
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.86\textwidth]{../figures/F8_grok.pdf}
+  \caption[Generalisation, and the classification rule.]{\textbf{Generalisation, and the
+    classification rule.} The panel plots test accuracy against step for the $30$ runs at
+    the six moduli measured in Sections~\ref{sec:causal} and \ref{sec:strata}. Each run is
+    coloured by the \emph{median of its final ten logged samples}, drawn as a ring at the
+    right edge beside its final sample. Runs are classified into three states rather than
+    two. A binary gate reports the one run at a window median of $0.976$ as a failure,
+    where it is a near-grok. That model learned the circuit, and its use as an ungrokked
+    control destroys the contrast a control exists to provide.\par
+    The downward spikes are the $6$ post-grok excursions below $0.90$ that occur in $5$ of
+    these runs. Each is exactly one $200$-step logging interval wide, and all six recover.
+    None here is censored, but in the $120{,}000$-step horizon sweep one of $19$ such
+    excursions began on a run's final logged sample. No later observation exists there, and
+    an outcome read from that sample produced a claim we later retracted
+    (Appendix~\ref{app:retractions}). The figure regenerates from
+    \texttt{src/viz/plots.py::grok\_curves}.}
+  \label{fig:grok}
+\end{figure}
+% STE end
+
+\subsection{The discrete-log clock survives at prime powers}
+\label{sec:clock-primepowers}
+
+A prime power is the case \citet{chen2026multiplication} name: its ring has nilpotents and
+non-regular $\mathcal{J}$-classes. If the character account required regularity, the
+multiplicative-basis structure should degrade there. It does not.
+
+On the unit sub-grid at five seeds, with the criterion fixed in advance: for a prime power
+$n = p^{\alpha}$ with cyclic unit group,
+\begin{equation}
+  \label{eq:c6}
+  \Delta(n) \;=\; \bigl| \mathrm{Gini}_{\text{mult}}(n) - \mathrm{Gini}_{\text{mult}}(113) \bigr|
+  \;<\; 0.10 ,
+\end{equation}
+where each $\mathrm{Gini}_{\text{mult}}$ is the mean over seeds of the tail statistic. The
+threshold is roughly $2$--$5$ times the estimator's own standard deviation
+(Section~\ref{sec:methods-validity}), which is the only reason a single-checkpoint read would
+have been too weak to use.
+
+\begin{center}
+\begin{tabular}{lccc}
+  \toprule
+  $n$ & $\mathrm{Gini}_{\text{mult}}$ & $\mathrm{Gini}_{\text{add}}$ & $|\Delta|$ vs $113$ \\
+  \midrule
+  $113$ (field) & $0.564 \pm 0.026$ & $0.018 \pm 0.004$ & --- \\
+  $121 = 11^{2}$ & $0.556 \pm 0.028$ & $0.125 \pm 0.010$ & $\mathbf{0.008}$ \\
+  $125 = 5^{3}$ & $0.558 \pm 0.048$ & $0.177 \pm 0.030$ & $\mathbf{0.005}$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+Mean $\pm$ standard deviation over five seeds; all values float32. The observed differences
+are an order of magnitude below the threshold and well inside the seed spread. Three further
+cyclic prime powers were added afterwards: $81 = 3^{4}$ at $3/3$ seeds within the threshold
+($\Delta = 0.046, 0.024, 0.005$), $169 = 13^{2}$ at $2/3$ ($0.023, 0.013, 0.108$), and
+$49 = 7^{2}$, which at $\mathrm{train\_frac}\ 0.50$ groks $3/3$ with
+$\mathrm{Gini}_{\text{mult}} = 0.539, 0.574, 0.526$ ($\Delta = 0.020, 0.015, 0.033$). The
+clock therefore survives at five cyclic prime powers ($7^{2}$, $11^{2}$, $5^{3}$, $3^{4}$ and
+$13^{2}$), which span nilpotency depth $2$ to $4$.
+
+Two qualifications travel with this. The first is that there are five, not six:
+$128 = 2^{7}$ has a non-cyclic unit group and no discrete log, so $\mathrm{Gini}_{\text{mult}}$ is undefined rather than
+unmeasured there; it is reached in Section~\ref{sec:causal-128} in product-character
+coordinates. The second is that $169$ holds at $2$ of $3$ seeds, not $3$: the seed that missed is
+reported, rather than a criterion that would have admitted it.
+
+% STE descriptive
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.78\textwidth]{../figures/basis_comparison.pdf}
+  \caption{\textbf{The same model in two bases.} The two panels give the spectral amplitude
+    at $n = 113$ in the multiplicative (discrete-log) basis and in the additive basis.
+    Sparsity is a property of the coordinate, not of the model. The density that makes
+    multiplicative grokking look structureless in raw residue coordinates is a basis
+    artefact \citep{nguyen2026dlogclock}. The figure regenerates from
+    \texttt{src/viz/plots.py::basis\_comparison}.}
+  \label{fig:basis}
+\end{figure}
+% STE end
+
+What the prime powers show is that cyclicity of the unit group, not primality and not
+regularity, is what the clock needs. $121$ and $125$ are local rings carrying nilpotents,
+and in the multiplicative basis they are as sparse as the field.
+
+\subsection{Three primes, not one}
+\label{sec:clock-primes}
+
+Every ``prime versus composite'' statement in the literature on this task, and in earlier
+versions of this work, rested on $n = 113$. Two further primes were trained under the same
+protocol:
+
+\begin{center}
+\begin{tabular}{lccccc}
+  \toprule
+  $n$ & $\mathrm{Gini}_{\text{mult}}$ & $|\Delta|$ vs $113$ & neurons tuned (dlog) & raw & shuffled \\
+  \midrule
+  $127$ & $0.5562$ & $0.0103$ & $0.908 \cdot 0.887 \cdot 0.998$ & $0.000$ & $0.000$ \\
+  $131$ & $0.5915$ & $0.0250$ & $0.963 \cdot 0.975 \cdot 0.975$ & $0.000$ & $0.000$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+Both inside the same $0.10$ threshold, $3/3$ seeds each, float32. Nothing about $n = 113$ is
+special; the prime case is a case, not an instance.
+
+\subsection{The clock is in the neurons, not only the embedding}
+\label{sec:clock-neurons}
+
+Every multiplicative statistic above is computed on the embedding $W_{E}$, which leaves open
+the objection that the structure is present in the representation and absent from the
+computation. It is not. Pre-registered before the activations were scored, we score each of
+the $512$ MLP neurons by $\mathrm{tune}(h)$ of \eqref{eq:tuned}. That is the share of its
+DC-free two-dimensional spectral energy, over the unit grid reordered by discrete log, that a
+\emph{single} frequency's eight-bin family explains. A neuron is tuned when that share exceeds
+$0.85$:
+
+\begin{center}
+\begin{tabular}{lll}
+  \toprule
+  $n$ & tuned neurons, per seed & \\
+  \midrule
+  $113$ & $94.9 \cdot 91.8 \cdot 100.0 \cdot 99.8 \cdot 98.0\%$ & (published reference $96.9\%$) \\
+  $121 = 11^{2}$ & $74.0 \cdot 79.9 \cdot 89.3 \cdot 73.2 \cdot 78.9\%$ & \\
+  $125 = 5^{3}$ & $76.0 \cdot 72.9 \cdot 71.7 \cdot 85.7\%$ & \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+The controls are what make this a measurement. The same neurons in \emph{raw} residue
+coordinates are $0.0\%$ tuned at every modulus and every seed; a per-neuron cell shuffle,
+which preserves the grid's marginal distribution and destroys its structure, gives $0.00\%$ at
+every grid side. A matched-failure control built only from runs that did not generalise reads
+$6.8\%$ (our engine at $n = 125$, final accuracy $0.6082$) and $0.0\%$ (at $n = 49$ and
+$n = 54$, accuracies $0.15$--$0.27$). And writing $K_{W}$ for the key set recovered from the embedding and $K_{h}$ for the set of
+frequencies the tuned neurons select,
+\begin{equation}
+  \label{eq:keyagree}
+  K_{h} \;=\; K_{W} \qquad \text{in } 14 \text{ of } 14 \text{ grokked runs,}
+\end{equation}
+element for element. The neurons and the embedding therefore run the same clock rather than
+two coincidentally sparse ones. By Proposition~\ref{prop:generator} this is a statement
+about two routes agreeing \emph{inside} a coordinate system, and it survives a change of
+generator; the common set moves, the agreement does not.
+
+The prime powers do not match the prime, and we do not explain the gap. $72$--$89\%$
+against $92$--$100\%$ is a real and consistent shortfall, reproduced across seeds, and none of
+our controls accounts for it. It is reported here and listed in
+Section~\ref{sec:limits}.
+
+\subsection{The circuit uses the embedding's key frequencies}
+\label{sec:clock-circuit}
+
+Finally, the frequencies identified in the embedding are the frequencies the output
+uses. In discrete-log coordinates the top eight components of the logit two-dimensional DFT
+are $a+b$ components. They carry $98.37$, $100.00$, $100.00$, $100.00$ and $100.00\%$ of
+top-eight energy across five seeds, and they sit on the same frequency set the
+$5\times$-median detector recovers from $W_{E}$. At seed $0$ the eighth component is an $a-b$ term carrying
+$1.6\%$; we report the seed rather than the population value, because an earlier version of
+this claim quoted $100\%$ from seed $0$, where the true figure is $98.37\%$.
+
+The bin convention \eqref{eq:bins} is load-bearing here and was verified against planted
+signals rather than derived; reported the other way round, the conclusion inverts.

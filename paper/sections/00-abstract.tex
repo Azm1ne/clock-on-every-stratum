@@ -1,0 +1,56 @@
+\begin{abstract}
+% STE descriptive
+Mechanistic accounts of modular arithmetic in transformers largely stop where global
+invertibility stops. \citet{chen2026multiplication} extend the character account to
+$a \cdot b \bmod n$. They treat $\mathbb{Z}/n\mathbb{Z}$ as a monoid, and its Green's
+$\mathcal{J}$-classes stratify the input space. Their evidence covers four square-free moduli,
+and they describe it as only correlational. Non-square-free moduli have non-regular classes, and
+these classes contain nilpotents. \citet{chen2026multiplication} name these moduli as the case
+that breaks the reduction to local group characters.
+
+We show that the reduction does not break. With $x = d \cdot u$, a $\mathcal{J}$-class is a
+torsor under the \emph{local} units $(\mathbb{Z}/(n/d)\mathbb{Z})^{\times}$. Under the global
+units the action is transitive but not free. So every stratum is multiplication in a smaller
+ring, carried on that stratum's own local group $G_{m} = (\mathbb{Z}/(n/m)\mathbb{Z})^{*}$.
+Nilpotents collapse a stratum onto a smaller local group. They do not destroy its character structure.
+
+We measure this across $23$ moduli, $14$ of them non-square-free and $6$ of them prime powers.
+A transformer runs the same character-based clock on every stratum. The measurement covers $32$
+strata, $157$ stratum-run measurements and $12$ distinct local groups. We committed its
+criteria before any per-stratum number existed. At $n = 165$ the strata raise the share of the
+multiplication table that the mechanism accounts for from $23.5\%$ to $82.3\%$.
+
+It is also the \emph{same} clock, and not one clock per stratum. Strata that share a local group
+select exactly the same characters of it in $158$ of $160$ pre-registered pairs. Against this, a
+$10{,}000$-draw null is at its floor, and a control that destroys the structure reads $0$ of
+$160$.
+
+The output depends on those frequencies, and they are not incidental. A $10{,}000$-draw
+permutation ablation of the logit spectrum puts the key set beyond \emph{every} draw at $133$ of
+$157$ stratum-measurements. It gives $\hat{p} \le 0.0023$ at all $157$, with excluded/baseline
+from $3.98 \times 10^{2}$ to $2.71 \times 10^{8}$. It also holds in $28$ of $29$ further
+single-modulus runs, and we name the one exception. It reaches $2^{7}$, the deepest nilpotency
+tested, in product-character coordinates where no discrete log exists.
+
+This is an intervention on the saved logit spectrum, the restricted/excluded protocol of
+\citet{nanda2023progress}. It re-runs no forward pass, ablates no weight and patches no
+activation. So it establishes what the output depends on, and not which internal component
+computes it. We therefore claim no more than that protocol earns, and we name it wherever we
+cite the evidence.
+
+At two moduli we do claim more: we delete those characters from the \emph{embedding} and run
+the network forward unmodified. This takes unit-grid accuracy to $0.0089$--$0.0091$ at the prime
+$n = 113$ (chance $1/112$). It takes it to $0.0000$--$0.0120$ at $n = 121 = 11^{2}$ (chance
+$1/110$), and the edit leaves the non-regular stratum of that modulus intact. Both results hold
+on three of three seeds at each modulus. The complementary edit keeps only those characters and
+leaves accuracy at $0.9596$ or above. This is a weight-space intervention with both
+nonlinearities downstream of the edit, on checkpoints that reproduce the archived runs
+bit-identically.
+
+The algebra of $n$ changes how many strata there are and how they nest, and not the mechanism
+that runs on them. Two negatives bound the claim. The criterion that our own pre-registration
+named primary does not discriminate a grokked model from a failed one. So the verdict rests on
+the three criteria that do. The clearest early signal that we found also rises identically in
+runs that never generalise. It is therefore not a progress measure.
+% STE end
+\end{abstract}

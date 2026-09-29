@@ -1,0 +1,331 @@
+\section{The clock carries the logits}
+\label{sec:causal}
+
+This is the section \citet{chen2026multiplication} name as missing. Their evidence for
+stratified Fourier computation is, in their own words, \emph{``only correlational, meaning
+causation cannot be directly inferred''}, and the future work they propose is exactly
+\emph{``causal intervention techniques, such as ablations and activation patching''}. That is
+why the ablation evidence here is a Results section rather than a line of support inside one.
+\citet{nanda2023progress} and \citet{chughtai2023toy} fold ablations into their mechanism
+sections, and we depart from that deliberately.
+
+Sparsity says a representation is concentrated on a few characters. It does not say the
+network computes with them. The protocol is Section~\ref{sec:methods-causal}'s: baseline, restricted
+and excluded losses in exponent coordinates, against a null of $10{,}000$ random character
+sets of the same cardinality, reported as a permutation $\hat{p}$.
+
+\subsection{At prime powers}
+\label{sec:causal-primepowers}
+
+At five seeds across the six original moduli, not one of $10{,}000$ random equal-sized
+character sets is as damaging as the key set in $26$ of the $31$ runs. The remaining five are
+beaten by between $1$ and $2$ draws, so every run reads $\hat{p} \le 0.0003$:
+
+\begin{center}
+\begin{tabular}{llccc}
+  \toprule
+  $n$ & $(\mathbb{Z}/n\mathbb{Z})^{\times}$ & baseline/restricted, median & range over seeds & $p < 0.01$ in \\
+  \midrule
+  $113$ & $\mathbb{Z}_{112}$ & $2.34\times$ & $1.56$--$264$ & $5/5$ \\
+  $121 = 11^{2}$ & $\mathbb{Z}_{110}$ & $1.85\times$ & $0.349$--$4.22$ & $5/5$ \\
+  $125 = 5^{3}$ & $\mathbb{Z}_{100}$ & $1.98\times$ & $1.46$--$2.87$ & $5/5$ \\
+  $119 = 7 \cdot 17$ & $\mathbb{Z}_{6} \times \mathbb{Z}_{16}$ & $0.67\times$ & $0.0146$--$1.96$ & $5/5$ \\
+  $120$ & $\mathbb{Z}_{2}^{3} \times \mathbb{Z}_{4}$ & $1.25\times$ & $1.18$--$1.75$ & $5/5$ \\
+  $165 = 3 \cdot 5 \cdot 11$ & $\mathbb{Z}_{2} \times \mathbb{Z}_{4} \times \mathbb{Z}_{10}$ & $1.42\times$ & $0.000709$--$1.63$ & $5/5$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+The improvement factor is reported as a median with its range across seeds, never as a mean.
+Its distribution is heavy-tailed for the same reason the control distribution is. At $n = 113$
+one seed of five reads $264\times$ where the other four read $1.56$ to $8.0$, and a mean over
+those is $55.5 \pm 104.1$. That summary's standard deviation is twice its value, and one run
+decides it. The claim rests on the permutation $p$, which is $5/5$
+everywhere and is not a ratio at all.
+
+Figure~\ref{fig:causal} gives the absolute losses and the null itself. At $n = 121$
+seed $0$ the baseline loss is $4.96 \times 10^{-7}$, keeping only the key characters
+\emph{improves} it to $2.10 \times 10^{-7}$, and removing exactly those characters raises it to
+$1.29 \times 10^{1}$, seven orders of magnitude.
+Keeping only the key characters improves the loss in $25$ of the $30$ five-seed runs, and in
+$5/5$ seeds at $113$, $120$ and $125$.
+
+The prime powers are the point. $121$ and $125$ are the local rings with nilpotents
+and non-regular $\mathcal{J}$-classes, and their clock frequencies are load-bearing,
+not merely a sparse description of the embedding.
+
+\subsection{Where there is no discrete log}
+\label{sec:causal-nodlog}
+
+$119$, $120$ and $165$ have non-cyclic unit groups: no generator, no discrete log. They still
+have an exponent coordinate, multiplication is still addition of exponent tuples, and a
+character is a multi-index. Ablating there separates the key set from the median control by $10.0$ to
+$4.6 \times 10^{7}\times$, so the
+product-character circuit carries the logits too.
+
+Across eleven further moduli at up to three seeds each, the permutation test passes at
+$p < 0.01$ in $28$ of $29$ analysable runs, including $81 = 3^{4}$ at $3/3$. We name the
+exception rather than the rate, and it is marginal rather than absent: $n = 98$ is $2/3$, with
+one seed at $\hat{p} = 0.0151$ ($150$ of $10{,}000$ draws as damaging as the key set).
+
+This count moved when the null was deepened, and the pre-registration said in advance that it
+might. At $200$ draws it read $27$ of $29$. The second exception was $n = 49 = 7^{2}$ at
+$p = 0.010$, two draws out of $200$, which landed exactly on the threshold.
+\texttt{PREREGISTER\_r1\_permutation\_B.md} named both marginal tests before the re-run and
+committed to reporting whatever they became, \emph{including} $26$ or $28$. At $10{,}000$
+draws $n = 49$ reads $\hat{p} = 0.0050$ ($49$ draws) and passes. The other end of the range
+did not move: $n = 98$'s seed read $0.015$ from $3$ of $200$ draws and reads $0.0151$ from
+$150$ of $10{,}000$.
+
+The pass at $n = 49$ is a caveat about the statistic, not a result about $n = 49$. That run
+\emph{did not grok}: its held-out accuracy over the final ten samples is $0.891$, and its baseline loss, $1.3 \times 10^{-1}$, is four orders of magnitude
+worse than any grokked run here. An earlier draft read its $p = 0.010$ as the test
+``correctly'' reporting the absence of a circuit. It was not doing that, and the $50\times$
+resolution is what exposed the reading. A permutation test on the logit spectrum asks whether
+the key characters carry the logits; a model that has memorised much of its training grid
+still has a logit tensor that is a function of $u \cdot v$ where it was trained. This is the
+same limit Gate~2 measures directly. There $G1$, the same statistic and the named primary
+criterion, passes on $20$ of $20$ \emph{failed} stratum-measurements
+(Section~\ref{sec:strata-notclaimed}, Figure~\ref{fig:discrimination}). The permutation $p$
+is evidence that a circuit is load-bearing \emph{where one exists}. It is not a detector of
+whether the network generalised, and nothing in this paper asks it to be.
+
+The analysis code was validated on a planted signal at $n = 35$ before it was trusted on
+data.
+
+\subsection{At $2^{7}$, the deepest nilpotency tested}
+\label{sec:causal-128}
+
+$n = 128$ is the sixth prime power and the hardest case in the set: $\omega = 1$, half its
+residues zero divisors, unit group $\mathbb{Z}_{2} \times \mathbb{Z}_{32}$ with no discrete
+log, and nilpotency depth $7$, the deepest tested. In product-character coordinates the key
+characters carry the logits at the floor of the null, $\hat{p} = 1.0 \times 10^{-4}$, in $2/2$
+analysable runs: $0$ of $10{,}000$ draws is as damaging as the key set in either.
+
+The permutation $p$ is the claim here, and the improvement ratio is not. The ratio is given as
+a median with its range. These samples are two or three runs drawn from a distribution
+this paper has already shown to be heavy-tailed (Section~\ref{sec:methods-causal}), and a mean
+over two or three such draws is exactly the summary we retired. Writing
+baseline/restricted per run:
+
+\begin{center}
+\begin{tabular}{lcccc}
+  \toprule
+  $n$ & runs & median & range & $p < 0.01$ \\
+  \midrule
+  $128 = 2^{7}$        & $2$ & $239.52\times$ & $2.77$--$476.26$ & $2/2$ \\
+  $131$                & $3$ & $2.88\times$   & $2.44$--$781.26$ & $3/3$ \\
+  $127$                & $3$ & $5.04\times$   & $2.18$--$51.63$  & $3/3$ \\
+  $91 = 7 \cdot 13$    & $2$ & $117.26\times$ & $1.45$--$233.07$ & $2/2$ \\
+  $123 = 3 \cdot 41$   & $3$ & $1.76\times$   & $0.00$--$2.19$   & $3/3$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\noindent
+$13$ of $13$ runs across these five moduli reach the floor, $\hat{p} = 1/10{,}001 = 1.0 \times
+10^{-4}$: no draw of $10{,}000$ was as damaging as the key set in any of them.
+The ranges are the finding, and they are wide: at $n = 131$ one run of three improves by $781\times$ and the
+other two by under $3\times$, so a mean of $262\times$ describes no run in the sample. An
+earlier draft of this section reported exactly those means with standard deviations of the
+same order as the values, which is the defect Section~\ref{sec:methods-causal} retires two
+sections earlier. The ratios above supersede them. What survives unchanged is the
+threshold-free statistic: every one of the $13$ runs is beyond every one of its $10{,}000$
+draws.
+
+Two qualifications. $n = 128$ grokked $2$ of $3$ seeds, so the $2/2$ is two analysable runs and
+not two of three. And $n = 91$'s count is not counted as independent support. Our two analysis paths disagree
+on its seed count, because one admitted a run at accuracy $0.976$. Under the three-state rule
+that run is a near-grok and is neither data nor control.
+
+The prime-power set therefore reaches $p = 2$ and depth $7$. The discrete-log
+statistics of Section~\ref{sec:clock-primepowers} cover five cyclic prime powers; the ablation
+covers all six.
+
+\subsection{Independent of initialisation}
+\label{sec:causal-init}
+
+The dependence is not an artefact of one initialisation scale. Across $24$ runs at $n = 113$,
+in three initialisation conditions (balanced fan-in, upstream-heavy and downstream-heavy,
+following \citet{kunin2024getrich}) at eight seeds each, the permutation test passes at
+$p < 0.01$ in $\mathbf{24/24}$. Every one of the $24$ is beyond \emph{every} one of its
+$10{,}000$ draws.
+
+\subsection{Inside the network, at a prime and at a prime square}
+\label{sec:causal-internal}
+
+Everything above acts on the logit tensor. It establishes what the output depends on, and
+Section~\ref{sec:methods} states that it is not a statement about which internal
+component computes it. At $n = 113$ and at $n = 121 = 11^{2}$ we can say the stronger thing.
+The protocol, and the three criteria it inherits, are stated in
+Section~\ref{sec:methods-causal}.
+
+% STE descriptive
+\begin{table}[t]
+  \centering
+  \small
+  \begin{tabular}{cccccrl}
+    \toprule
+    $n$ & seed & baseline & restricted (acc.) & excluded (acc.) & excl./base. & $\hat{p}$ \\
+    \midrule
+    $113$ & $0$ & $1.2102\mathrm{e}{-05}$ & $2.0775\mathrm{e}{-06}$ ($1.0000$) & $4.7136\mathrm{e}{+01}$ ($0.0089$) & $3.895\mathrm{e}{+06}$ & $1/10001$ \\
+    & $1$ & $1.2743\mathrm{e}{-07}$ & $3.2178\mathrm{e}{-07}$ ($1.0000$) & $3.5425\mathrm{e}{+01}$ ($0.0089$) & $2.780\mathrm{e}{+08}$ & $1/10001$ \\
+    & $2$ & $1.5480\mathrm{e}{-07}$ & $2.2235\mathrm{e}{-07}$ ($1.0000$) & $2.3883\mathrm{e}{+01}$ ($0.0091$) & $1.543\mathrm{e}{+08}$ & $5/10001$ \\
+    \midrule
+    $121$ & $0$ & $1.7482\mathrm{e}{-06}$ & $3.4061\mathrm{e}{-07}$ ($1.0000$) & $5.0365\mathrm{e}{+01}$ ($0.0000$) & $2.881\mathrm{e}{+07}$ & $1/10001$ \\
+    & $1$ & $7.7458\mathrm{e}{-03}$ & $1.0560\mathrm{e}{-01}$ ($0.9596$) & $5.7783\mathrm{e}{+01}$ ($0.0120$) & $7.460\mathrm{e}{+03}$ & $1/10001$ \\
+    & $2$ & $1.6364\mathrm{e}{-03}$ & $2.2674\mathrm{e}{-03}$ ($1.0000$) & $1.8467\mathrm{e}{+01}$ ($0.0000$) & $1.128\mathrm{e}{+04}$ & $3/10001$ \\
+    \bottomrule
+  \end{tabular}
+  \caption[Deletion of the key characters from the embedding returns the network to
+    chance.]{\textbf{Deletion of the key characters from the embedding returns the network to
+    chance.} Each row gives cross-entropy on the unit grid after an edit of $W_{E}$ and a new
+    forward pass, three seeds per modulus. At $n = 113$ excluded accuracy $0.0089$--$0.0091$
+    \emph{is} chance, $1/112 = 0.00893$. At $n = 121$ it is $0.0000$, $0.0120$ and $0.0000$
+    against chance $1/110 = 0.00909$ on the $110 \times 110$ unit grid. Restricted accuracy is
+    $1.0000$ on five of six runs and $0.9596$ on the sixth. The excluded/baseline median is
+    $1.543 \times 10^{8}$ (range $3.895 \times 10^{6}$--$2.780 \times 10^{8}$) at
+    $n = 113$.\par
+    At $n = 121$ it is $1.128 \times 10^{4}$ (range $7.460 \times 10^{3}$--$2.881 \times
+    10^{7}$). Both are medians and ranges over three seeds, because a standard deviation over
+    three points is not a statistic. The two moduli are never pooled. $\hat{p}$ is
+    Phipson--Smyth $(1+b)/(B+1)$ against $B = 10{,}000$ random character sets of the same
+    cardinality. Seeds $0$ and $1$ sit at the design floor and are printed as the fraction.
+    Four decimals cannot distinguish ``at the floor'' from ``just above it''.}
+  \label{tab:internal}
+\end{table}
+% STE end
+
+At $n = 113$ all three criteria hold on all three seeds, against a pre-registered requirement
+of two of three. The checkpoints are not new models. They reproduce the archived runs bit-identically,
+$\max\lvert \Delta W_{E} \rvert = \max\lvert \Delta W_{U} \rvert
+= \max\lvert \Delta \mathrm{logits} \rvert = 0$, with grokking steps $4{,}500$, $6{,}500$ and
+$9{,}700$ recovered exactly. So Table~\ref{tab:internal} describes the same networks the rest
+of this section measures. The projections were checked against the spectrum and not only
+against the loss. Restricted preserves key-bin amplitude to the digit and zeroes the
+complement to $10^{-13}$, and the key set holds $81.6\%$ of embedding amplitude in $8$ of $56$
+bins at seed $0$.
+
+\paragraph{The null's upper tail reaches the effect, and the permutation $p$ is what shows
+it.} On seed $2$ the control \emph{maximum}, $2.4464 \times 10^{1}$, exceeds the excluded loss
+$2.3883 \times 10^{1}$, and on seed $0$ it reaches $99.2\%$ of it. A ratio to the control
+median would read $8.2 \times 10^{7}$ and hide this entirely. It is the same heavy-tail hazard
+that retired the control-mean ratio, in a new arm. The cause is the design and it is
+conservative: the draw pool includes the key characters, so a draw can partially reproduce
+the intervention. Post hoc, and not part of the pre-registered analysis, the damage resolves into a
+dose-response that is monotone \emph{in the mean} with how many key characters a draw removes.
+Removals of $0$, $1$, $2$, $3$, $4$ and $5$ give $1.26 \times 10^{-5}$, $4.95$, $10.3$, $16.5$,
+$23.9$ and $30.0$ at seed $0$. Figure~\ref{fig:internal} shows that the within-level spread is
+wide, though, so the dose-response describes means and not individual draws. A draw containing \emph{no} key character does nothing at all, within $1.04$--$1.11
+\times$ of baseline, and across the three seeds $12{,}468$ such draws never exceed
+$1.05 \times 10^{-4}$ against an excluded loss of $24$--$47$. This is direct evidence for the
+reading already given for the bimodality in Figure~\ref{fig:causal}: the harmless mode is the
+draws the model does not use.
+
+% STE descriptive
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{../figures/F10_internal.pdf}
+  \caption[The intervention acts on a weight, and the null's tail is draws that partially
+    perform it.]{\textbf{The intervention acts on a weight, and the null's tail is draws that
+    partially perform it.} \emph{Left:} baseline, restricted and excluded cross-entropy at
+    $n = 113$ after an edit of $W_{E}$ and a new forward pass, three seeds. The panel uses the
+    same three roles and hues as Figure~\ref{fig:causal}. Excluded is direct-labelled with its
+    \emph{accuracy}, because that is the claim: $0.0089$--$0.0091$ is chance, $1/112$, not a
+    degraded model. Restricted holds $1.0000$ on every seed.\par
+    \emph{Right:} every one of the $30{,}000$ null draws, pooled over seeds and divided by its
+    own run's baseline so the three share one axis. The draws are split by how many key
+    characters each draw removed. Counts are above the axis, bars are medians, and the band is
+    the real intervention, $3.895 \times 10^{6}$ to $2.780 \times 10^{8}$. The $12{,}468$ draws
+    that remove none sit at the baseline line and never exceed $1.05 \times 10^{-4}$ in
+    absolute terms. Damage rises monotonically in the mean with overlap, but the within-level
+    spread is wide. A single key character can be worth four orders or almost nothing, so the
+    dose-response is a statement about means, not about individual draws.\par
+    This decomposition is post hoc and not part of the pre-registered analysis. The figure
+    regenerates from \texttt{src/viz/plots.py::internal\_intervention}.}
+  \label{fig:internal}
+\end{figure}
+% STE end
+
+\paragraph{At a non-square-free modulus.} A prime is the weakest place to test this, because
+every nonzero residue is a unit and the clause ``non-unit rows pass through untouched''
+covers a single row. At $n = 121 = 11^{2}$ it covers eleven (zero and ten nilpotents),
+and those rows form a non-regular $\mathcal{J}$-class at $d = 11$ (Section~\ref{sec:setup-strata}).
+After the edit the network still holds eleven intact embedding rows and a whole non-regular
+stratum. We ran the identical instrument, unmodified, under a separate pre-registration
+committed before the retrain, with all three thresholds inherited from the $n = 113$ arm. The
+pre-registration named $\text{excluded}/\text{baseline} < 100\times$ as the outcome that
+would confine the internal claim to a prime. The worst of three seeds reads
+$7.46 \times 10^{3}$, and all three criteria hold on all three seeds
+(Table~\ref{tab:internal}). The checkpoints again reproduce the archived runs, with
+$\max\lvert \Delta W_{E} \rvert = 0$ and grokking steps $10{,}700$, $10{,}300$ and $5{,}000$.
+
+Three differences from $n = 113$ are reported, not interpreted. First, excluded accuracy falls
+\emph{below} chance on two of three seeds ($0.0000$ against $1/110$) where at the prime it sat
+on chance. No criterion reads accuracy against chance, so this is descriptive and would need
+its own pre-registration to become a claim. Second, the null's tail again reaches the effect
+on seed $2$. The control maximum $18.6887$ exceeds the excluded loss $18.4667$, and both
+beating draws remove three of the four key characters. The $19{,}426$ draws that remove none
+never exceed $1.71 \times 10^{-2}$ against an excluded loss of $18$--$58$. Third, the ratios
+sit about two orders lower at the floor than at $n = 113$; the pre-registration declined to
+predict that they would match, and we draw nothing from the comparison.
+
+\paragraph{What this does and does not license.} At $n = 113$ and $n = 121$ the key
+multiplicative characters are the representation the network \emph{computes with}, not merely
+a basis its output is sparse in. That is the second of the two instruments
+\citet{chen2026multiplication} name as missing, at two moduli and three seeds each, one of
+them non-square-free with a non-regular stratum left intact. The logit-tensor result remains
+the evidence at the other twenty-one moduli, and the scoping of Section~\ref{sec:methods}
+stands there. Restricted is worse than baseline on two of three seeds at each modulus: by
+$2.5\times$ and $1.4\times$ at $n = 113$, and by $13.6\times$ and $1.39\times$ at $n = 121$, at
+accuracy $0.9596$ or above and at least two orders below excluded. This is the same
+necessary-but-not-sufficient signature the non-cyclic case shows above, and a shortfall of the
+key-set detector rather than of the circuit.
+
+\subsection{Two caveats on scope}
+\label{sec:causal-caveats}
+
+Necessary is not the same as sufficient, and at two moduli we can only show the first. In the notation of \eqref{eq:ablation} the two are distinct claims:
+\begin{equation}
+  \label{eq:necsuf}
+  \underbrace{\mathcal{L}(\Pi_{K^{c}} L) \;\gg\; \mathcal{L}(L)}_{K \text{ is \emph{necessary}}}
+  \qquad\text{versus}\qquad
+  \underbrace{\mathcal{L}(\Pi_{K} L) \;\lesssim\; \mathcal{L}(L)}_{K \text{ is \emph{sufficient}}} ,
+\end{equation}
+and only the first is what the permutation $p$ of \eqref{eq:permp} tests. At $n = 119$ the restricted loss is $2.0\times$ \emph{worse} than baseline: the six key
+characters are necessary, since excluding them is catastrophic, but keeping only them does not
+reconstruct the model. Both losses are around $10^{-5}$, six orders below the excluded loss,
+so this is a shortfall in the frequency detector rather than a failed circuit, but it is not
+the clean ``restricted improves'' signature the other runs show. $n = 123$ reproduces the same
+pattern at a modulus that had never been seen ($p < 0.01$ in $3/3$, baseline/restricted median only
+$1.76\times$, range $0.003$--$2.19\times$). The initialisation sweep shows it is condition-specific: $3/8$ under
+upstream-heavy initialisation, $0/8$ under both of the others. It tracks the unbalanced
+initialisation, not the modulus and not the group structure.
+
+A frequency can sit in the embedding and do nothing. In our addition control at $n = 113$,
+the frequency $k = 23$ has embedding norm $23.1$ against a noise floor near $1$, and a logit
+ablation delta below $4 \times 10^{-10}$ (1 seed). It is present in
+$W_{E}$ and absent from the circuit. \citet{nanda2023progress} report the same thing. The
+consequence for method is that embedding-level frequencies are not circuit-level frequencies,
+and the causal set is the one to report.
+
+% STE descriptive
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{../figures/F4_causal.pdf}
+  \caption[The causal test and the null it rests on.]{\textbf{The causal test and the null
+    it rests on.} \emph{Left:} absolute baseline, restricted and excluded cross-entropy per
+    modulus, five seeds each. Bars are the median, and every seed is a dot. Removal of exactly
+    the key characters costs three to seven orders of magnitude. A model with only them is at
+    or below baseline. \emph{Right:} the permutation null for $n = 121$ seed $0$, $10{,}000$
+    random character sets of equal cardinality, with the median control and the real key set
+    marked.\par
+    The null is bimodal. About three quarters of random removals leave the loss at baseline,
+    because the model does not use those characters. The remainder cause damage but reach at most
+    $10.9$. The key set is at $12.9$, beyond every one of the $10{,}000$ draws, so $\hat{p}$ is
+    the floor, $1.0 \times 10^{-4}$. The bimodality is why a ratio to the control \emph{mean}
+    is not a statistic here and was retired. The figure regenerates from
+    \texttt{src/viz/plots.py::causal\_test}.}
+  \label{fig:causal}
+\end{figure}
+% STE end

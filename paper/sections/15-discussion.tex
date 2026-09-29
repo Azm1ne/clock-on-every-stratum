@@ -1,0 +1,78 @@
+\section{Discussion}
+\label{sec:discussion}
+
+This section gathers the interpretations the results support, each at the strength its
+evidence carries, and names the measurement that would settle it where one is known.
+
+\paragraph{One mechanism, indexed per stratum.} Every measurable stratum carries a diagonal
+clock on its own local group (Section~\ref{sec:strata-result}). Strata that share a local
+group select exactly the same characters of it in $158$ of $160$ pre-registered pairs
+(Section~\ref{sec:strata-sameness}). At $n = 113$ and $n = 121$, deleting the key characters
+from the embedding returns the network to chance (Section~\ref{sec:causal-internal}). The
+reading these support is that the network runs the same character-based clock on each
+stratum, on that stratum's own local group, and not a private sub-circuit per stratum. The
+sameness claim ships without a failed-run control, because the project has only two scorable
+failed-run pairs and both come from one model. The same statistic on enough models that never
+generalised would complete it.
+
+\paragraph{What the nilpotents do.} \citet{chen2026multiplication} describe non-regular
+$\mathcal{J}$-classes as breaking the reduction to local group characters. At every
+non-square-free modulus we measured, the reduction does not break. A stratum collapses onto a
+smaller local group, $G_{m}$ of Theorem~\ref{thm:stratum}, and the clock runs there
+(Sections~\ref{sec:clock-primepowers} and \ref{sec:strata-result}). The coordinate that makes
+this measurable was first sighted at one seed (1 seed), and the five-seed measurement of
+Section~\ref{sec:strata} supersedes that sighting. The ablation reaches nilpotency depth $7$
+at $n = 2^{7}$, and depth beyond that is untested (Section~\ref{sec:causal-128}).
+
+\paragraph{Where the additive structure comes from.} The key additive frequencies of a
+grokked model are exactly $P(n)$, one family per maximal prime power
+(Section~\ref{sec:crt-law}). The $\mathcal{J}$-class indicators alone concentrate their
+energy on the duals of every divisor, and select $P(n)$ at only $2$ of the $10$ composite
+moduli tested. The selection of the maximal-prime-power subfamily
+is therefore the trained network's, since the algebra alone does not make it. Why the network
+makes that selection is not addressed here.
+
+\paragraph{Relation to other mechanistic accounts.} On the unit stratum of a prime the
+mechanism is \citet{nanda2023progress}'s clock in discrete-log coordinates, and our engine
+reproduces their addition result (Section~\ref{sec:calib}). For $a \cdot b \bmod n$ the two
+levels of universality that \citet{chughtai2023toy} describe are algebraic: the family is the
+character clock, and the index set is fixed by the stratum's own local group. The top logit
+components are $a+b$ terms in discrete-log coordinates at five seeds
+(Section~\ref{sec:clock-circuit}), at the one hyperparameter setting we train.
+\citet{zhong2023clock} show that other settings can yield other algorithms, and we do not
+test them. The basis dependence of \citet{nguyen2026dlogclock} replicates, and the agreement
+is specific to float32 (Section~\ref{sec:calib}). The logit ablation survives the three
+initialisation conditions of \citet{kunin2024getrich} (Section~\ref{sec:causal-init}).
+Section~\ref{sec:limits} names the next test, the same measurement on non-commutative finite
+groups.
+
+\paragraph{Precision and absolute numbers.} Training precision changes the measured sparsity
+in PyTorch: the same code reads $0.5791$ at float32 and $0.7728$ at float64
+(Section~\ref{sec:impl}). A published Gini is therefore comparable to another only at a named
+precision, and every absolute sparsity number this paper reports from PyTorch is a float32 measurement.
+Comparisons between moduli, and comparisons within one arm, are unaffected. Why our engine
+reaches the float64 answer at either dtype is open, with no surviving candidate, and an
+operator-by-operator differential trace of one training step at both dtypes would settle it.
+
+\paragraph{What the negatives say about progress measures.} Two statistics that look like
+progress measures fire on runs that never generalised. G1, the criterion our pre-registration
+named primary, passes on $20$ of $20$ failed stratum-measurements
+(Section~\ref{sec:strata-falsifier}). The early CRT enrichment ramp rises monotonically in
+failed runs and ends above the band grokked runs occupy early (Section~\ref{sec:crt-ramp}). A
+statistic that fires on failures is not evidence, whatever it does on successes. The
+procedure we draw from both is to score a candidate statistic on a failed-run control before
+proposing it.
+
+\paragraph{Why the shape of this result may travel further than the task.} What the
+measurements describe is a network that partitions its input space along a structure the
+\emph{data} has, runs one mechanism on every part, and indexes that mechanism by each
+part's own symmetry group. Nothing in that sentence mentions modular arithmetic. It is the
+pattern an architecture exhibits whenever it routes inputs to sub-computations, as a mixture
+of experts does when it chooses among them, or a network whose layers are built to respect a
+group action. In those settings the partition is imposed by the designer, where here it was
+recovered from a trained model that was never told the algebra of $n$. The instrument transfers with
+it: a stratification anyone can compute from the task, a per-stratum statistic, a criterion
+fixed before the numbers exist, and a control that has the stratification's size structure
+without its content. That last element is what killed three of our own claims
+(Appendix~\ref{app:retractions}). We make no claim that a larger model does this; we claim
+that this is a testable thing to ask of one.

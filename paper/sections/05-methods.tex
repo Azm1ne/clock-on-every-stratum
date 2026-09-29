@@ -1,0 +1,531 @@
+\section{Methods}
+\label{sec:methods}
+
+Three choices in this section are conventions rather than results, and each has cost this
+project a wrong number at least once. They are the coordinate in which a spectrum is taken,
+the power of the amplitude on which a sparsity statistic is computed, and what a random
+control is allowed to randomise. We state each with its formula and its parameter, in the manner of
+\citet{doshi2024grokking}'s footnote, because the literature does not agree on them.
+
+\subsection{Model and training}
+\label{sec:setup-training}
+
+% STE descriptive
+All runs use one transformer architecture from \citet{nanda2023progress}. The model has a
+single layer, $d_{\text{model}} = 128$, four attention heads of width $32$, and a ReLU MLP of
+width $512$. It has no layer normalisation or bias terms. The logits come from the final
+position as $(z + \mathrm{ReLU}(z W_{\text{in}}) W_{\text{out}}) W_{U}$, where $z$ is the
+post-attention residual stream. A learned positional embedding $W_{\text{pos}}$ adds to the
+token embedding $W_{E}$, and attention uses a causal mask. Outside the sweep of
+Section~\ref{sec:causal-init}, each weight matrix starts from a zero-mean Gaussian with
+standard deviation $1/\sqrt{512}$ for $W_{\text{out}}$ and $1/\sqrt{128}$ for all other
+matrices.
+
+Training is full-batch AdamW with learning rate $10^{-3}$, weight decay $1.0$,
+$\beta = (0.9, 0.98)$ and $\epsilon = 10^{-8}$. The loss is cross-entropy on the $30\%$
+training split, for $40{,}000$ steps. The run seed sets both the initial weights and the
+random split. PyTorch logs test accuracy and both losses every $200$ steps, and the engine
+logs them every $100$ steps. Test accuracy is measured on the pairs held out from
+training. The grokking step of a run is the first logged step at which test accuracy is above
+$0.99$.
+
+The weight decay is the setting under which grokking is reliably observed on this task
+family \citep{power2022grokking}. It is held fixed across every modulus so that the modulus
+is the only variable.
+
+Two independent implementations produce the results in this paper. The breadth, $23$ moduli
+with up to five seeds, comes from a PyTorch implementation. The same architecture is also
+implemented on an autograd engine written from scratch for this project. The engine
+reproduces the PyTorch forward pass and gradients to machine precision and is used as an
+independent check at four moduli. Section~\ref{sec:impl} treats the two arms and the one
+systematic difference between them.
+% STE end
+
+\subsection{Coordinates}
+\label{sec:methods-coords}
+\label{sec:setup-coords}
+
+Two coordinate systems appear throughout, and every character index in this paper names which
+one it is in. Where $(\mathbb{Z}/q\mathbb{Z})^{\times}$ is cyclic we fix a primitive root $g$
+and use \emph{discrete-log coordinates}, $x = g^{\,\ell}$, in which multiplication is addition
+of $\ell$. Where it is not cyclic, as at $n = 119$, $n = 120$, $n = 128$ and in every stratum
+whose local group is a product, there is no discrete log. There we use \emph{exponent-tuple
+coordinates}, given by a fixed decomposition into cyclic factors. The choice of $g$ is a choice
+of labelling and not of structure; Proposition~\ref{prop:generator} records that
+the readout is exactly invariant to it.
+
+All spectral statistics on a multiplication run are taken in a coordinate in which
+multiplication is addition. Where $(\mathbb{Z}/q\mathbb{Z})^{\times}$ is cyclic of order
+$\varphi(q)$, a primitive root $g$ gives the discrete-log isomorphism
+\begin{equation}
+  \label{eq:dlog}
+  \mathrm{dlog}_{g} : (\mathbb{Z}/q\mathbb{Z})^{\times} \;\xrightarrow{\ \sim\ }\;
+  \mathbb{Z}/\varphi(q)\mathbb{Z},
+  \qquad g^{\ell} \longmapsto \ell,
+  \qquad \mathrm{dlog}_{g}(xy) = \mathrm{dlog}_{g}(x) + \mathrm{dlog}_{g}(y) ,
+\end{equation}
+and the characters of the unit group are
+\begin{equation}
+  \label{eq:character}
+  \chi_{k}(x) \;=\; \exp\!\Bigl( \tfrac{2\pi i\, k\, \mathrm{dlog}_{g}(x)}{\varphi(q)} \Bigr),
+  \qquad k \in \mathbb{Z}/\varphi(q)\mathbb{Z} .
+\end{equation}
+The frequency index $k$ lives in $\mathbb{Z}/\varphi(q)\mathbb{Z}$, not in
+$\mathbb{Z}/n\mathbb{Z}$, and the two are routinely confused. Where the unit group is not
+cyclic, the structure theorem gives $G \cong \mathbb{Z}_{o_{1}} \times \cdots \times
+\mathbb{Z}_{o_{r}}$ with generators $g_{1}, \dots, g_{r}$; every unit is uniquely
+$x = \prod_{j} g_{j}^{\,e_{j}}$, and the \emph{product characters} are
+\begin{equation}
+  \label{eq:prodchar}
+  \chi_{\mathbf{k}}(x) \;=\;
+  \exp\!\Bigl( 2\pi i \sum_{j=1}^{r} \tfrac{k_{j} e_{j}}{o_{j}} \Bigr),
+  \qquad \mathbf{k} \in \widehat{G} \cong \prod_{j} \mathbb{Z}_{o_{j}},
+  \qquad |\widehat{G}| = |G| .
+\end{equation}
+The logit grid is then a $2r$-dimensional array. In both cases $\chi_{\mathbf{k}}(xy) =
+\chi_{\mathbf{k}}(x)\chi_{\mathbf{k}}(y)$, so multiplication becomes addition of exponent
+tuples, which is what makes a clock expressible at all. For a matrix $M \in
+\mathbb{R}^{G \times D}$ indexed by units, the character transform is
+\begin{equation}
+  \label{eq:transform}
+  \widehat{M}_{\mathbf{k}} \;=\; \sum_{x \in G} \overline{\chi_{\mathbf{k}}(x)}\, M_{x}
+  \;\in\; \mathbb{C}^{D} .
+\end{equation}
+
+A statistic reported in raw residue coordinates on a multiplication run is not a weaker
+measurement, it is a different one: the same model's top eight logit components read $17.0\%$ ``$a+b$'' in raw coordinates
+and $98.4\%$ in discrete-log coordinates.
+
+\paragraph{Invariance to the generator.} The primitive root $g$ in \eqref{eq:dlog} is
+arbitrary (our implementation returns the smallest), so nothing claimed about a circuit
+may depend on it.
+
+\begin{proposition}[Generator equivariance]
+\label{prop:generator}
+Let $\varphi = \varphi(q)$ and let $t$ satisfy $\gcd(t, \varphi) = 1$. Replacing $g$ by $g^{t}$
+sends $\mathrm{dlog}_{g} \mapsto t^{-1} \mathrm{dlog}_{g} \bmod \varphi$ and therefore permutes
+the character index by $k \mapsto t k \bmod \varphi$. Consequently
+\begin{equation}
+  \label{eq:equivariance}
+  \mathrm{Gini},\;\; \mathrm{PR},\;\;
+  \mathcal{L}(L),\;\; \mathcal{L}(\Pi_{K} L),\;\; \mathcal{L}(\Pi_{K^{c}} L),\;\; p
+  \quad\text{are invariant,}
+  \qquad
+  K \;\longmapsto\; tK \bmod \varphi .
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+$k \mapsto tk$ is a bijection of $\mathbb{Z}/\varphi\mathbb{Z}$, so it permutes the amplitude
+multiset $\{A_{k}\}$; \eqref{eq:gini} and \eqref{eq:pr} are symmetric functions of that
+multiset. It also maps the diagonal to itself, $(k,k) \mapsto (tk, tk)$, so $\Pi_{K}$ and
+$\Pi_{K^{c}}$ in \eqref{eq:ablation} are conjugated by a permutation and their losses are
+unchanged. The $p$ of \eqref{eq:permp} is a function of those losses and of a uniform draw over
+sets of fixed cardinality, which the permutation preserves.
+\end{proof}
+
+Verified numerically to $10^{-10}$ at $113$, $121$ and $125$, and per cyclic component at the
+non-cyclic moduli. A key-frequency value is therefore not a property of a model. Only
+the set up to multiplication by a unit modulo $\varphi$ is, and this paper states key sets in
+that sense. Writing ``key frequencies $\{11, 29, 33, 49\}$ at $n = 121$'' names a representative of an orbit, not
+an invariant.
+
+\subsection{Sparsity statistics, and the three conventions in the literature}
+\label{sec:methods-sparsity}
+
+Let $M$ be an embedding or activation matrix indexed by residues. For frequency $k$ we form
+the sine and cosine projections $s_{k}, c_{k}$ and combine them into a single
+\emph{amplitude}
+\begin{equation}
+  \label{eq:amplitude}
+  A_{k} \;=\; \sqrt{\lVert s_{k} \rVert^{2} + \lVert c_{k} \rVert^{2}},
+  \qquad k = 1, \dots, \lfloor \varphi/2 \rfloor,
+\end{equation}
+dropping the DC component $k = 0$. Two statistics are computed from $\{A_{k}\}$, and they are
+computed on different powers of it.
+
+Gini is computed on the amplitude. With $A_{(1)} \le \cdots \le A_{(M)}$ the sorted
+amplitudes,
+\begin{equation}
+  \label{eq:gini}
+  \mathrm{Gini}(A) \;=\;
+  \frac{\sum_{i=1}^{M} (2i - M - 1)\, A_{(i)}}{M \sum_{i=1}^{M} A_{(i)}}
+  \;\in\; \bigl[0,\; 1 - \tfrac{1}{M}\bigr],
+\end{equation}
+attaining $0$ on a flat spectrum and $1 - 1/M$ when a single frequency carries everything.
+The upper bound depends on $M$, so a Gini is comparable only across spectra of the same
+length. This is one reason the random-orthogonal control below must preserve that length.
+
+The participation ratio is computed on the energy, with
+\begin{equation}
+  \label{eq:pr}
+  p_{k} \;=\; \frac{A_{k}^{2}}{\sum_{j} A_{j}^{2}},
+  \qquad
+  \mathrm{PR}(A) \;=\; \frac{1}{\sum_{k} p_{k}^{2}}
+  \;=\; \frac{\bigl(\sum_{k} A_{k}^{2}\bigr)^{2}}{\sum_{k} A_{k}^{4}}
+  \;\in\; [1, M] ,
+\end{equation}
+its standard definition. $\mathrm{PR} = M$ for a flat spectrum and $\mathrm{PR} = 1$ when one
+frequency carries everything. It is an effective count of active frequencies, which is why it
+belongs on energy: $p_{k}$ must be a probability over frequencies.
+
+The two choices are not interchangeable and neither is a matter of taste. On one of our
+$n = 113$ checkpoints, Gini on energy reads $0.902$ where Gini on amplitude reads $0.543$.
+Feeding amplitude into the participation ratio gives $12.5$ where the energy convention gives
+$4.31$. Each error was live in this project's code for months, and in the second
+case it produced a failed prediction against a published value before it was found.
+
+Three incompatible conventions appear in this literature, and their values are not
+comparable. Writing $u$ for the spectrum being summarised,
+\begin{equation}
+  \label{eq:conventions}
+  \underbrace{\mathrm{PR}(u) = \Bigl(\textstyle\sum_{k} p_{k}^{2}\Bigr)^{-1} \in [1, M]}_{\text{ours, and \citet{nguyen2026dlogclock}}}
+  \qquad
+  \underbrace{\mathrm{IPR}_{r}(u) = \bigl( \lVert u \rVert_{2r} / \lVert u \rVert_{2} \bigr)^{2r} \in (0, 1]}_{\text{\citet{doshi2024grokking}, with } r = 2}
+\end{equation}
+move in \emph{opposite} directions: ours decreases with sparsity, theirs increases, and
+$\mathrm{IPR}_{2}(u) = 1/\mathrm{PR}(u)$ exactly when both are computed on the same
+normalised energy. \citet{nanda2023progress} use a third. A sparsity number quoted without its
+convention cannot be checked, and we state ours at every use.
+
+\paragraph{Never one basis alone.} A purely additive signal scores $0.53$--$0.63$ in the
+multiplicative basis, so a multiplicative Gini reported on its own is uninterpretable. Every
+sparsity measurement in this paper is reported as a triple (multiplicative, additive, and a
+random-orthogonal control), together with the count of key frequencies.
+
+\subsection{Controls}
+\label{sec:methods-controls}
+
+The random-orthogonal control must rotate the residue axis, not the feature axis.
+
+\begin{proposition}[Rotating features is a no-op]
+\label{prop:noop}
+Let $M \in \mathbb{R}^{G \times D}$ and let $Q \in \mathbb{R}^{D \times D}$ be orthogonal.
+Then the amplitude spectrum \eqref{eq:amplitude} of $MQ$ equals that of $M$ exactly.
+\end{proposition}
+
+\begin{proof}
+The transform \eqref{eq:transform} acts on the residue index, so
+$\widehat{MQ}_{\mathbf{k}} = \widehat{M}_{\mathbf{k}} Q$. Since $Q$ is orthogonal it preserves
+the Euclidean norm of each row, so
+$\lVert \widehat{MQ}_{\mathbf{k}} \rVert = \lVert \widehat{M}_{\mathbf{k}} \rVert$ for every
+$\mathbf{k}$, and $A_{\mathbf{k}}$ in \eqref{eq:amplitude} is a function of that norm alone.
+\end{proof}
+
+A control built that way does not look broken. It returns the signal exactly, which reads as
+a result worth reporting (``the clock is no better than a random basis''). That is the
+failure mode Proposition~\ref{prop:noop} exists to prevent. The control we use instead acts on
+the \emph{residue} index,
+\begin{equation}
+  \label{eq:randorth}
+  M \;\longmapsto\; Q^{*} M, \qquad Q \in \mathrm{U}(|G|) \text{ Haar-random},
+\end{equation}
+which preserves the spectrum length $M$ (so the Gini bound in \eqref{eq:gini} is unchanged)
+and destroys the character structure. Both directions are asserted in the analysis code's
+self-check.
+
+Two further controls appear throughout. A \emph{shuffle} control permutes cells within the
+object being measured, so it preserves its size and marginal distribution and destroys its
+structure. A \emph{matched-failure} control is built only from runs that failed to
+generalise. The last of these is worth stating as a rule. A binary accuracy gate answers ``is
+this a data point''. It is the wrong instrument for ``is this a control''. One of our runs
+ends at test accuracy $0.9779$, a model that has learned the circuit. Scored as an ungrokked
+negative control, it read $74.8\%$ neuron tuning and destroyed the contrast the control
+exists to provide. We therefore classify every run into three states, grokked,
+near-grok and failed, and build controls only from the failed ones. This biases against our own
+findings, which is the direction that is rarely checked.
+
+\paragraph{Classifying a run.}
+% STE descriptive
+A run's endpoint is a window, never its last logged row. Under weight decay $1.0$, post-grok
+accuracy excursions are common. Across $11$ long runs we observe $19$ excursions below $0.90$
+after grokking. Every one is exactly one $200$-step logging interval wide, and $18$ of them
+recover. The nineteenth merely begins at the last step at which an observation exists.
+
+For the logged test accuracies $\mathrm{acc}_{1}, \dots, \mathrm{acc}_{S}$ of a run, we
+define
+\begin{equation}
+  \label{eq:window}
+  \bar{a} \;=\; \mathrm{median}\bigl( \mathrm{acc}_{S-9}, \dots, \mathrm{acc}_{S} \bigr),
+  \qquad
+  \text{state} =
+  \begin{cases}
+    \text{grokked}   & \bar{a} > 0.99, \\
+    \text{near-grok} & 0.90 \le \bar{a} \le 0.99, \\
+    \text{failed}    & \bar{a} < 0.90,
+  \end{cases}
+\end{equation}
+and test accuracy is read by column name rather than by position, because our two
+implementations write different quantities at the same index.
+
+There are three states, not two: a binary gate turns every near-miss into whichever side it
+falls on. The run above ends at $\bar{a} = 0.976$, so it is near-grok and not a
+control. Controls are built only from runs in the \emph{failed} state. The threshold $0.99$ is
+the grokking criterion of every training script. The threshold $0.90$ is the floor of the
+excursion count above, and it was fixed before any control arm was scored.
+% STE end
+
+\subsection{The ablation protocol}
+\label{sec:methods-causal}
+
+Sparsity says a representation is concentrated. It does not say the concentration is used.
+
+Let $L \in \mathbb{R}^{G \times G \times n}$ be the logit tensor over a grid of units,
+re-indexed into character coordinates by \eqref{eq:transform} on both input axes, so that
+$\widehat{L}_{\mathbf{k}, \mathbf{k}'}$ is its component at the character pair
+$(\mathbf{k}, \mathbf{k}')$. For a set $S \subseteq \widehat{G} \times \widehat{G}$ define the
+spectral projection $\Pi_{S}$ by
+\begin{equation}
+  \label{eq:project}
+  \widehat{\Pi_{S} L}_{\mathbf{k}, \mathbf{k}'} \;=\;
+  \begin{cases}
+    \widehat{L}_{\mathbf{k}, \mathbf{k}'} & (\mathbf{k}, \mathbf{k}') \in S, \\
+    0 & \text{otherwise,}
+  \end{cases}
+\end{equation}
+and write $\mathcal{L}(\cdot)$ for cross-entropy against the true targets. The three
+quantities we report are then
+\begin{equation}
+  \label{eq:ablation}
+  \underbrace{\mathcal{L}(L)}_{\text{baseline}}
+  \qquad
+  \underbrace{\mathcal{L}(\Pi_{K} L)}_{\text{restricted}}
+  \qquad
+  \underbrace{\mathcal{L}(\Pi_{K^{c}} L)}_{\text{excluded}}
+\end{equation}
+for a key set $K$, where $K^{c}$ is its complement. \emph{Restricted} keeps only $K$;
+\emph{excluded} removes exactly $K$ and keeps everything else. We report all three as absolute
+losses side by side, following \citet{chughtai2023toy}.
+
+\paragraph{What this intervention acts on.} $\Pi_{S}$ acts on the
+\emph{logit tensor} of a trained model. The forward pass is not re-run, no weight is ablated
+and no activation is patched. This is \citet{nanda2023progress}'s restricted and excluded
+loss protocol, applied in a coordinate they did not need, and what it licenses is a statement
+about the output: the logits are carried by $K$ and are destroyed when exactly $K$ is removed.
+It is not a statement about which internal component computes them.
+\citet{chen2026multiplication} name ablations \emph{and} activation patching as the evidence
+their account lacks; this protocol supplies the first. The title, the abstract and the heading
+of Section~\ref{sec:causal} therefore name the ablation rather than assert causation, and
+where the claim ledger of Appendix~\ref{app:ledger} uses the word \emph{causal} it means this
+protocol and no other.
+
+\paragraph{The one place we do re-run the forward pass.}
+% STE descriptive
+At $n = 113$ and $n = 121$ only, the same projection $\Pi_{S}$ of \eqref{eq:project} is
+applied to the \emph{embedding} $W_{E}$ rather than to the logit tensor. The edit is made in
+the multiplicative character basis. The network then runs forward unmodified
+(Section~\ref{sec:causal-internal}). Softmax attention and the ReLU MLP run on top of the edited weights. So, unlike a mask on the output, nothing here is
+algebraically forced. Non-unit rows and the read-out token row carry no character index and
+pass through untouched.
+
+The experiment was pre-registered before the models it uses were retrained. Its three
+thresholds are inherited from criteria this paper fixes elsewhere for other purposes. They are
+the $100\times$ of Section~\ref{sec:strata}, the $0.90$ generalisation floor, and
+$p < 0.01$. So none was chosen after a number was seen.
+% STE end
+
+The two nonlinearities lie downstream of the edit, so the result is not a rearrangement of
+the output, and the scoping of the logit-tensor protocol does not apply to it. It applies
+everywhere else in this paper. We keep the two apart deliberately: two moduli with a weight
+intervention do not retroactively upgrade the other twenty-one, measured a different way.
+
+% STE descriptive
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{../figures/F3_ablation_scheme.pdf}
+  \caption[The two projections, drawn on the plane they act on.]{\textbf{The two projections, drawn on the plane they act on.} Each panel is the
+    character plane of the logits at $n = 121$ seed $0$, in discrete-log coordinates, with
+    DC at the centre. Shade is $\log_{10}$ of the magnitude
+    $\lVert \widehat{L}_{\kappa_{a}, \kappa_{b}} \rVert$ summed over the output axis.
+    \emph{Left:} the model as trained. The energy that matters lies on the diagonal
+    $\Delta$, which is where \eqref{eq:diagonal} says a character circuit must put it.
+    \emph{Centre:} $\Pi_{K}$ keeps the $4$ key characters and their conjugates and zeroes
+    the other $12{,}091$ pairs.\par
+    Rings mark the survivors, because nine kept pixels out of $110^{2}$ would otherwise read
+    as nothing there. \emph{Right:} $\Pi_{K^{c}}$ removes exactly those nine and keeps the
+    rest. The cross-entropy under each panel is printed beneath it: restricted is at
+    or below baseline, and excluded is seven orders of magnitude worse. So the key characters
+    are both sufficient and necessary on this run. The figure regenerates from
+    \texttt{src/viz/plots.py::ablation\_scheme}. The spectrum, the key set and all three
+    losses come from \texttt{src/analysis/ablation.py}, the same code
+    Section~\ref{sec:causal} reports.}
+  \label{fig:ablation-scheme}
+\end{figure}
+% STE end
+
+\paragraph{The statistic is a permutation $p$, not a ratio to a control mean.} Drawing
+$R_{1}, \dots, R_{B}$ uniformly at random from the character sets of cardinality $|K|$, with
+$B = 10{,}000$ and $b$ the number of draws at least as damaging as the key set,
+\begin{equation}
+  \label{eq:permp}
+  \hat{p} \;=\; \frac{1 + b}{B + 1},
+  \qquad
+  b \;=\; \sum_{b'=1}^{B}
+  \mathbf{1}\Bigl[\, \mathcal{L}(\Pi_{R_{b'}^{c}} L) \;\ge\; \mathcal{L}(\Pi_{K^{c}} L) \,\Bigr],
+\end{equation}
+the fraction of equal-sized random sets at least as damaging as the key set.
+The $(1+b)/(B+1)$ form is deliberate, and the naive $b/B$ is a trap we fell into. The
+ratio $b/B$ reads exactly $0$ whenever no draw is as damaging as the key set, and a Monte-Carlo
+$p$ of $0$ claims a resolution the design does not have. An earlier draft of this paper
+printed $p = 0.0000$ to four decimals from a $200$-draw null whose smallest expressible
+value is $1/201 \approx 0.005$. Here the floor is $\hat{p} = 1/10{,}001 \approx 1.0 \times
+10^{-4}$, and where $b = 0$ the text states it in words as well as in the estimate. It is
+threshold-free and scale-free, and it is the statistic every dependence claim in this paper
+rests on. We previously reported
+$\text{excluded} / \text{mean}(\text{control})$ over $20$ draws and have retired it. The
+control distribution is bimodal: roughly $73\%$ of random character removals leave the loss
+untouched, because the model does not use those characters, and the remainder are
+catastrophic. Its mean is therefore decided by how many catastrophic draws happen to land, and
+at $n = 121$ seed $0$ that ratio ranges over $21\times$ to $440\times$ across control random
+seeds alone, on identical data. Where a descriptive ratio is useful we quote the median
+control. The same permutation logic, at $20{,}000$ draws, is used for the enrichment test in
+Section~\ref{sec:crt-law}.
+
+\paragraph{Multiplicity.} This paper's permutation tests form a
+family of $320$: $157$ measurable stratum-measurements in the primary arm and $26$ in the
+engine arm, plus $137$ single-modulus ablations across eight sweeps and two runs of a retired engine arm. They test one
+hypothesis repeatedly rather than searching for a significant one among many, but the count
+is what it is and the reader should not have to reconstruct it. At $B = 10{,}000$ the floor
+$1.0 \times 10^{-4}$ clears a Benjamini--Hochberg correction at $\alpha = 0.01$ and a
+Bonferroni correction at $\alpha = 0.05$ (per-test $1.6 \times 10^{-4}$). It does not
+clear Bonferroni at $\alpha = 0.01$, which would require a per-test level of
+$3.1 \times 10^{-5}$ and hence $B \ge 32{,}000$. That comparison fails, and it is stated here
+rather than omitted. The draw count was chosen for cost: $B = 10{,}000$ is about ten hours of
+local CPU across the family and $B = 32{,}000$ about thirty. This reason is recorded here so
+it is not later mistaken for a statistical judgement.
+
+\paragraph{Two guards against circularity in the ablated set.}
+For the unit-stratum results the key set is recovered independently of the ablation, by
+embedding norm, and the set recovered by ablation rank agrees with it. For the
+per-stratum results of Section~\ref{sec:strata} no key-frequency detector is used at
+all: the ablated set is the \emph{whole diagonal}, fixed in advance by
+Theorem~\ref{thm:stratum}. Selecting a set by ablation rank and then permutation-testing that
+same set would be circular, and the second design excludes it by construction.
+
+\paragraph{Three further statistics.} The \emph{enrichment} of a predicted
+frequency set $P$ against a spectrum $A$ compares its mean mass to the global mean,
+\begin{equation}
+  \label{eq:enrich}
+  \mathrm{enr}(P) \;=\;
+  \frac{\frac{1}{|P|}\sum_{k \in P} A_{k}}{\frac{1}{M}\sum_{k} A_{k}} ,
+\end{equation}
+and is scored by the same permutation logic as \eqref{eq:permp} over $20{,}000$ random sets of
+cardinality $|P|$. The \emph{diagonal energy share} of a stratum measures how much of the
+logit energy sits on $\Delta$ of \eqref{eq:diagonal}, against the share an unstructured tensor
+would give,
+\begin{equation}
+  \label{eq:dshare}
+  D \;=\; \frac{\sum_{(\mathbf{k},\mathbf{k}') \in \Delta} \lVert \widehat{L}_{\mathbf{k},\mathbf{k}'} \rVert^{2}}
+               {\sum_{\mathbf{k},\mathbf{k}'} \lVert \widehat{L}_{\mathbf{k},\mathbf{k}'} \rVert^{2}} ,
+  \qquad
+  R \;=\; \frac{D}{1 / (|G_{m}| + 1)} ,
+\end{equation}
+so $R$ is the ratio to exact chance. Finally a neuron $h : G \times G \to \mathbb{R}$ is
+\emph{tuned} to frequency $\mathbf{k}$ when a single frequency's eight-bin family explains
+most of its DC-free two-dimensional spectral energy,
+\begin{equation}
+  \label{eq:tuned}
+  \mathrm{tune}(h) \;=\; \max_{\mathbf{k} \neq 0}
+  \frac{\sum_{(\mathbf{j},\mathbf{j}') \in F(\mathbf{k})} \lVert \widehat{h}_{\mathbf{j},\mathbf{j}'} \rVert^{2}}
+       {\sum_{(\mathbf{j},\mathbf{j}') \neq 0} \lVert \widehat{h}_{\mathbf{j},\mathbf{j}'} \rVert^{2}}
+  \;>\; 0.85 ,
+\end{equation}
+where $F(\mathbf{k})$ is the eight-bin family $\{(\pm\mathbf{k}, 0), (0, \pm\mathbf{k}),
+(\pm\mathbf{k}, \pm\mathbf{k})\}$. The threshold $0.85$ and the eight-bin family are
+\citet{nanda2023progress}'s; scoring a single bin instead reads $9.6\%$ where the correct
+statistic reads $85.0\%$ on the same model.
+
+\paragraph{The two-dimensional bin convention, which is load-bearing.} On a grid indexed so
+that multiplication is addition, a function of the product concentrates on the diagonal and a
+function of the ratio on the antidiagonal:
+\begin{equation}
+  \label{eq:bins}
+  f(a + b) \;\longleftrightarrow\; (k, k),
+  \qquad
+  f(a - b) \;\longleftrightarrow\; (k, -k).
+\end{equation}
+Reported the other way round, \eqref{eq:bins} inverts every conclusion drawn from it. We
+verified it by planting signals of known frequency and locating them, never by deriving it.
+Three separate bin-convention errors in this project were each found that way and none by
+reasoning.
+
+\paragraph{A generation diagnostic.} A key set that does not \emph{generate}
+the character group cannot implement an exact clock, since two units on which every key
+character agrees cannot be separated by any weighting of those characters. We report this as a
+per-run diagnostic, and every key set recovered here generates its full group.
+
+\subsection{What the measurements are worth}
+\label{sec:methods-validity}
+
+\paragraph{Noise in a single-checkpoint Gini.} Measured on three moduli at three
+seeds over the final $12{,}000$ steps, $\mathrm{Gini}_{\text{mult}}$ has within-run standard
+deviation $0.02$ to $0.044$. At $n = 125$ seed $2$ it wanders over $0.498$--$0.621$, a range of
+$0.122$, with no direction. This is oscillation about a flat mean and not a trend. The
+statistic plateaus by roughly $16{,}000$ to $20{,}000$ steps and then jitters. Against the
+$0.10$ threshold we use for ``the clock survives'', a single checkpoint is therefore about a
+$2\sigma$ test, and only about $1.6\sigma$ at $n = 125$. Where the comparison matters we
+average over the final $10{,}000$ steps and report the within-run spread. It follows that part
+of the across-seed spread reported for a single-checkpoint measurement is estimator noise
+rather than seed variance. The two were not separated in the earlier measurements, and they are
+not re-attributed here.
+
+\paragraph{Convergence at forty thousand steps.} For a
+statistic $\sigma$ sampled along a run at steps $t$, write its \emph{drift} against the final
+checkpoint $T$ as
+\begin{equation}
+  \label{eq:drift}
+  \mathrm{drift}(\sigma) \;=\;
+  \frac{1}{|W|}\sum_{t \in W} \frac{\bigl|\sigma(t) - \sigma(T)\bigr|}{|\sigma(T)|},
+  \qquad W = \text{the final } 10{,}000 \text{ steps},
+\end{equation}
+and call a seed converged when $\mathrm{drift} < 0.05$. Requiring that in at least four of
+five seeds, $n = 113$
+converges ($2.3\%$ participation-ratio drift, $5/5$ seeds) and $n = 121$ converges ($2.8\%$,
+$4/5$). Four moduli do not: $n = 125$ at $5.6\%$ ($2/5$ seeds), $n = 119$ at $5.9\%$ ($3/5$),
+$n = 120$ at $7.7\%$ ($3/5$) and $n = 165$ at $4.8\%$ ($3/5$). Every participation ratio at
+those four is measured at a non-stationary point. Rather than re-measure at a longer horizon,
+we retire the participation ratio at composite moduli and do not use it for cross-modulus
+comparison there.
+That a representation statistic need not be monotone in training is not a peculiarity of our
+setup. \citet{demoss2025complexity} track a compression-based complexity across grokking and
+find it \emph{rises} through memorisation and only then falls. The value read at any single
+checkpoint therefore depends on where in that arc the checkpoint sits. Our drift criterion is the
+narrow, per-statistic version of that caution, and the moduli it fails on are exactly the ones
+we decline to compare.
+
+\paragraph{The fibre residual.} Consequence~2 of Theorem~\ref{thm:stratum} says the target is
+constant on the fibres of \eqref{eq:fibration}. To test whether the \emph{logits} are too, we
+average a block $B$ over its fibres, write $\bar{B}$ for the result lifted back to the block,
+and report the share of block variance that averaging destroys:
+\begin{equation}
+  \label{eq:resid}
+  \mathrm{resid}(B) \;=\;
+  \frac{\bigl\lVert B - \bar{B} \bigr\rVert_{F}^{2}}
+       {\bigl\lVert B - \mathrm{mean}(B) \bigr\rVert_{F}^{2}} \;\in\; [0, 1].
+\end{equation}
+Averaging always smooths, so a small residual on its own means nothing. We therefore compare
+against $\mathrm{resid}$ computed on
+\emph{permuted} fibres of the same sizes, which have no algebraic meaning. This is the
+size-matched defence that three retracted claims of ours needed and did not have.
+
+\paragraph{Effect sizes for a pre-registered two-cell comparison.} Where an experiment asks
+what fraction of a known gap a variable explains, we fix the two endpoints in the
+pre-registration and report
+\begin{equation}
+  \label{eq:effectsize}
+  f \;=\; \frac{\sigma_{\text{observed}} - \sigma_{\text{baseline}}}
+                {\sigma_{\text{target}} - \sigma_{\text{baseline}}},
+\end{equation}
+with the decision rule committed before the observation exists: held at $f \ge 0.70$, not
+held at $f \le 0.30$, and \emph{partial}, reported as such, in between.
+Because the endpoints are fixed in advance, $f$ can exceed $1$ or fall below $0$, and we
+report the value rather than clipping it.
+
+\paragraph{Training precision changes an absolute sparsity number in PyTorch.} The same
+PyTorch code at $n = 113$ reads $\mathrm{Gini}_{\text{mult}} = 0.5791$ at float32 and $0.7728$
+at float64, while our from-scratch engine reads $0.7671$ and $0.7536$ at the two dtypes and is
+effectively unaffected. The effect is an interaction between implementation and precision, not
+a main effect of precision. We tested and retracted the main-effect claim, and
+Appendix~\ref{app:retractions} records that. Every sweep in this paper is float32, and we
+name the regime beside every absolute sparsity number. Comparisons between moduli, and
+comparisons within one arm, are unaffected, which is what almost every result here rests on.

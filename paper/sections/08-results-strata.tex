@@ -1,0 +1,327 @@
+\section{Every stratum runs a clock, on its own local group}
+\label{sec:strata}
+
+Sections~\ref{sec:clock} and \ref{sec:causal} measure the unit sub-grid. At a field that is
+almost the whole table; at $n = 120$ it is $7.1\%$ of it. This section measures the rest, and
+it is the paper's central result.
+
+\subsection{What the algebra says to measure}
+\label{sec:strata-algebra}
+
+Theorem~\ref{thm:stratum} determines the measurement completely, which is what makes it a
+test rather than a search. Fix a stratum $J_{d} \times J_{e}$ and let $m, w, q, G_{m}$ be as in
+\eqref{eq:mw} and \eqref{eq:localgroup}. By \eqref{eq:fibration} the target factors through the
+fibration, so the measurement is fixed in three steps:
+\begin{equation}
+  \label{eq:pipeline}
+  \underbrace{L\big|_{J_{d} \times J_{e}}}_{\text{block of logits}}
+  \;\xrightarrow{\ \iota_{d}^{-1} \times \iota_{e}^{-1}\ }\;
+  \underbrace{\widetilde{L}(u, v)}_{\text{unit coordinates}}
+  \;\xrightarrow{\ \pi_{d} \times \pi_{e}\ }\;
+  \underbrace{\overline{L}(\bar{u}, \bar{v})}_{\text{collapsed onto } G_{m} \times G_{m}}
+  \;\xrightarrow{\ \eqref{eq:transform}\ }\;
+  \widehat{\overline{L}}_{\kappa, \kappa'} ,
+\end{equation}
+after which we ask whether the energy sits on $\Delta$ of \eqref{eq:diagonal}. Each arrow is
+forced: $\iota$ by Proposition~\ref{prop:torsor}, $\pi$ by \eqref{eq:fibration}, and $\Delta$
+by consequence~3 of Theorem~\ref{thm:stratum}.
+
+No key-frequency detector is used anywhere in this section. The ablated set in
+\eqref{eq:ablation} is $K = \Delta$, the \emph{whole diagonal}, fixed in advance by
+\eqref{eq:diagonal} with $|\Delta| = |G_{m}|$. The obvious objection to any ablation result is
+circularity: choosing a set by ablation rank and then asking a permutation test whether that
+set is unusually damaging. Here the set cannot be
+chosen, because the algebra names it.
+
+The fibre-constancy of the target is asserted at every stratum of all six moduli by the
+analysis code rather than assumed.
+
+\subsection{Result}
+\label{sec:strata-result}
+
+Criteria were committed before any per-stratum number existed. We measure $32$ strata across
+six moduli, $157$ stratum-run measurements in total. They span $12$ distinct local groups
+($\mathbb{Z}_{10}$, $\mathbb{Z}_{16}$, $\mathbb{Z}_{20}$, $\mathbb{Z}_{100}$,
+$\mathbb{Z}_{110}$, $\mathbb{Z}_{112}$, $\mathbb{Z}_{2} \times \mathbb{Z}_{10}$,
+$\mathbb{Z}_{4} \times \mathbb{Z}_{10}$, $\mathbb{Z}_{2}^{2} \times \mathbb{Z}_{4}$,
+$\mathbb{Z}_{2} \times \mathbb{Z}_{4} \times \mathbb{Z}_{10}$,
+$\mathbb{Z}_{2}^{3} \times \mathbb{Z}_{4}$ and $\mathbb{Z}_{6} \times \mathbb{Z}_{16}$),
+and every one carries the same circuit (Figure~\ref{fig:strata}).
+
+\paragraph{Which strata are measurable, and why the cut cannot launder a failure.} A stratum
+is \emph{measurable} when two structural conditions fixed in the pre-registration both hold.
+Its local group satisfies $|G_{m}| \ge 10$ (S-b: below that the eight-bin family cannot
+discriminate), and the split leaves it at least $100$ held-out cells (S-c: fewer cannot
+separate a clock from memorisation). Blocks with $d = n$ or $e = n$ are excluded outright,
+since $J_{n} = \{0\}$ makes them identically zero. Both conditions are read off the
+algebra of $n$ and off the train/test split, never off a model's output, so the cut is
+settled before any accuracy is computed and an exclusion can never stand in for a failure.
+For G0 in particular, were the cut a function of the outcome, G0 could not fail by
+construction.
+
+\begin{center}
+\small
+\begin{tabular}{l p{0.28\textwidth} l p{0.34\textwidth}}
+  \toprule
+  & criterion & threshold & observed \\
+  \midrule
+  G0 & held-out accuracy per block & $\ge 0.95$ & $1.0000 \pm 0.0000$ at every measurable stratum \\
+  G1 & permutation $p$, diagonal vs $10{,}000$ sets & $p < 0.01$ in $\ge 4/5$ seeds & $0$ of $10{,}000$ draws in $133/157$; $\hat{p} \le 0.0023$ in all $157$ \\
+  G2 & excluded loss / baseline & $\ge 100\times$ & $3.98 \times 10^{2}$ to $2.71 \times 10^{8}$ \\
+  G3 & fibre residual \eqref{eq:resid} vs permuted control & $\le 0.5 \times$ control & real $0.000$--$0.132$, control $0.396$--$0.929$ \\
+  G4 & diagonal energy share $D$ of \eqref{eq:dshare} & $R \ge 5.0$ & $D = 0.837$--$0.997$ \\
+  G5 & tuned neurons $-$ per-stratum shuffle & $\ge 0.20$ & $85$ of $87$ scored; $0.193$--$1.000$ vs shuffle $0.0000$ \\
+  G6 & stratum sets differ by the algebra of $n$ & chain vs lattice & see below \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+G5 is defined only where the tuning statistic is, which is $87$ of the $157$ measurable
+stratum-runs (Section~\ref{sec:strata-notclaimed}). Two of those $87$ fall below its
+threshold: $n = 165$'s $J_{5} \times J_{15}$ and $J_{15} \times J_{5}$, both at $0.1934$
+against a $0.20$ bar. This is the lower end of the range reported above and is not a pass.
+
+Measuring the non-unit strata raises the share of the multiplication table the mechanism
+accounts for. Writing $\mathcal{M}$ for the set of measurable strata, that share is
+\begin{equation}
+  \label{eq:coverage}
+  \mathrm{cov}(\mathcal{M}) \;=\;
+  \frac{1}{n^{2}} \sum_{(d,e) \in \mathcal{M}} |J_{d}| \, |J_{e}|
+  \;=\; \frac{1}{n^{2}} \sum_{(d,e) \in \mathcal{M}} \varphi(n/d)\,\varphi(n/e),
+\end{equation}
+using $|J_{d}| = \varphi(n/d)$ from \eqref{eq:jclass}. It rises from the unit stratum alone
+($\mathcal{M} = \{(1,1)\}$, giving $\varphi(n)^{2}/n^{2}$) to:
+
+\begin{center}
+\begin{tabular}{lccl}
+  \toprule
+  $n$ & unit stratum alone & measured here & local groups \\
+  \midrule
+  $113$ & $98.2\%$ & $98.2\%$ & $\mathbb{Z}_{112}$ (there is no non-unit stratum) \\
+  $121 = 11^{2}$ & $82.6\%$ & $\mathbf{97.7\%}$ & $\mathbb{Z}_{110} \rhd \mathbb{Z}_{10}$ \\
+  $125 = 5^{3}$ & $64.0\%$ & $\mathbf{89.6\%}$ & $\mathbb{Z}_{100} \rhd \mathbb{Z}_{20}$ \\
+  $119 = 7 \cdot 17$ & $65.1\%$ & $\mathbf{88.6\%}$ & $\mathbb{Z}_{6} \times \mathbb{Z}_{16}$, $\mathbb{Z}_{16}$ \\
+  $120$ & $7.1\%$ & $\mathbf{23.1\%}$ & $\mathbb{Z}_{2}^{3} \times \mathbb{Z}_{4}$, $\mathbb{Z}_{2}^{2} \times \mathbb{Z}_{4}$ \\
+  $165 = 3 \cdot 5 \cdot 11$ & $23.5\%$ & $\mathbf{82.3\%}$ & $\mathbb{Z}_{2} \times \mathbb{Z}_{4} \times \mathbb{Z}_{10}$, and three more \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+% STE descriptive
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{../figures/gate2_strata.pdf}
+  \caption[Every measurable stratum, and the criteria it meets.]{\textbf{Every measurable
+    stratum, and the criteria it meets.} Each row is one stratum $J_{d} \times J_{e}$, and the
+    rows are grouped by modulus. $113$ contributes a single unit stratum, $121$ and $125$ the
+    nested $p$-adic chains, $119$ and $165$ divisor lattices, and $120$ the widest lattice.
+    Each row carries the stratum's local group $G_{m} = (\mathbb{Z}/(n/m)\mathbb{Z})^{\times}$
+    and its score on each criterion of the table above. There are twelve distinct groups
+    across the $32$ strata, from $\mathbb{Z}_{10}$ to
+    $\mathbb{Z}_{2} \times \mathbb{Z}_{4} \times \mathbb{Z}_{10}$. The point of the figure is
+    that the local group changes from row to row while the pattern of met criteria does
+    not.\par
+    The algebra of $n$ fixes how many strata there are and what group each carries, not
+    whether a clock runs on it. Strata excluded by the measurability cut are not drawn, and
+    the cut is structural and is defined above. The figure regenerates from
+    \texttt{src/viz/plots.py::gate2\_strata}.}
+  \label{fig:strata}
+\end{figure}
+% STE end
+
+G6 is the second half of the claim. The stratum sets differ by the algebra of $n$ in
+the way the algebra predicts: $121$ and $125$ give \emph{nested chains}, the $p$-adic
+filtration; $119$, $120$ and $165$ give \emph{non-chain divisor lattices}; and $113$ gives a
+single stratum. The mechanism does not change. The stratification does.
+
+\subsection{The pre-registered primary criterion does not discriminate}
+\label{sec:strata-falsifier}
+
+The pre-registration named its own falsifier: a failed run must not show a local clock. It
+fired. It is scored over $183$ grokked and $20$ failed stratum-measurements. These are the
+$157$ measurable stratum-runs of the PyTorch sweep above, plus a further $26$ from the
+from-scratch engine arm of Section~\ref{sec:strata-engine}, a larger population than the $157$
+used for the criteria table.
+
+% STE descriptive
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{../figures/F9_discrimination.pdf}
+  \caption[The pre-registered primary criterion does not separate, and the three that
+    do.]{\textbf{The pre-registered primary criterion does not separate, and the three that
+    do.} Each row is one Gate 2 criterion, scored on every measurable stratum of the grokked
+    runs (filled, $183$) and the failed runs (open, $20$). The count is printed at each mark,
+    and the rule between them is the criterion's power to discriminate.
+    Rows are ordered by that gap. G0, G2 and G5 separate at $1/20$, $1/20$ and $1/14$. One
+    failed measurement passes each, and it is the same one, named in the text.\par
+    G3 and G4 separate partly. G1, the permutation $p$ named primary in the pre-registration,
+    passes on $20/20$ failed measurements. Its two marks coincide, so the gap is zero. The
+    verdict rests on G0 $\wedge$ G2 $\wedge$ G5. Counts differ by row, because G3 and G5 are
+    undefined on strata with no fibre to collapse and on runs without saved activations. A
+    row is scored only where it is defined.\par
+    The figure regenerates from \texttt{src/viz/plots.py::gate2\_discrimination}, scored by
+    \texttt{scripts/gate2\_discriminate.py}.}
+  \label{fig:discrimination}
+\end{figure}
+% STE end
+
+Once looked at, the explanation is not subtle: $30\%$ of every block is training data, so a model
+that has merely memorised its training cells still has logits that are a function of
+$u \cdot v$ there. G1 tests whether the logits are a function of the product, and
+memorisation satisfies that. It is a necessary condition, not evidence. It was named primary
+because it is the statistic this project had used elsewhere. That is the kind of inherited
+authority that should have been checked against a failed-run control before it was promoted,
+and now is.
+
+The verdict stands, and its weight rests on G0 $\wedge$ G2 $\wedge$ G5, each of which
+passes on exactly one failed measurement and no more. We do not write that all six criteria
+passed.
+
+That one measurement is worth naming rather than rounding away. It is the unit
+stratum of $n = 49$, seed $2$, of the extended sweep, and it is the only measurable stratum
+that run has. Its window-median test accuracy is $0.8908$, which clears our FAILED threshold
+of $0.90$ by $0.009$, and its final ten logged samples rise, with one small dip, from $0.842$ to
+$0.963$. It is a run still learning when the step budget ended, not one that plateaued having
+learned nothing. On that stratum it reaches $0.959$ held-out accuracy and an
+excluded/baseline ratio of $302$, so it passes G0, G2, G4 and G5 exactly as a grokked
+measurement would. We place it in the failed arm because that is where our three-state
+endpoint rule puts it. A FAILED threshold $0.01$ \emph{lower}, at $0.89$, would reclassify it as a near-grok, remove it from the arm, and restore the
+$0/19$ this paper previously reported. The threshold is not tuned to this measurement: the
+$0.90$ floor is inherited from the excursion analysis that retired our own de-grokking claim
+(Appendix~\ref{app:retractions}), fixed a week before this arm was scored, and we keep it. The claim is therefore that G0, G2 and
+G5 separate the two arms on every measurement but one borderline run, not that they separate
+completely.
+
+This is a narrowing, not a rescue, and the direction is the whole argument. The
+decision rule was fixed in the pre-registration before the data existed: the fourth branch is
+declared if G1 $\wedge$ G2 hold at every measurable non-unit stratum at two or more moduli and
+G6 shows the stratum sets differ. That rule was met on its own terms: G1 \emph{held},
+at $99\%$ of grokked stratum-measurements. What fired is a \emph{separate} clause of the same
+document, the falsifier requiring that a failed run not show a local clock, and it is a finding
+about what G1 can discriminate rather than about whether the rule was satisfied. The move we
+then make, resting the weight on G0 $\wedge$ G2 $\wedge$ G5, \emph{discards} the
+criterion our own pre-registration named primary and leaves a strictly smaller evidence base
+than the one we registered. A post-hoc rescue selects criteria to save a claim; this
+deselects one, after it passed, because it turned out not to separate. The same direction runs
+through Appendix~\ref{app:retractions}: all five withdrawn claims were positive findings of
+our own, three of them died to a size confound we went looking for, and not one retraction
+replaced a claim with a stronger one.
+
+\subsection{The same clock, or one clock each}
+\label{sec:strata-sameness}
+
+Every criterion above is computed inside one stratum. That cannot separate \emph{one
+mechanism, indexed per stratum} from \emph{a private sub-circuit per stratum}: both put a
+diagonal clock in every block. The discriminating question is whether two strata that share
+a local group select the \emph{same characters} of it. The instrument for it is already in
+this paper: \eqref{eq:keyagree} compares two independently recovered key sets element
+for element on the unit stratum. Here it is applied between strata, pre-registered before
+any cross-stratum number existed.
+
+Which pairs can carry the test is fixed by the algebra, before any model is opened.
+Two strata are comparable when their local groups are identical. $\mathcal{J}$-blocks
+$(d,e)$ and $(e,d)$ are transposes of one \emph{commutative} task, so their diagonal spectra
+agree for a reason that has nothing to do with a shared circuit; they are reported
+separately and are never support. What remains is $28$ pairs at $n = 165$, $2$ at $n = 120$
+and $2$ at $n = 119$, and \emph{none} at $n = 121$ or $n = 125$, whose only same-group
+pair is a transpose. $n = 165$'s $G_{11}$, eight strata on one local group, carries the test.
+Across five seeds that is $160$ pairs.
+
+\begin{center}
+\begin{tabular}{llcc}
+  \toprule
+  & statistic & observed & pre-registered \\
+  \midrule
+  \textbf{agreement} & key sets \emph{exactly} equal & $\mathbf{158/160 = 0.9875}$ & $\ge 0.80$ \\
+  \textbf{null} & Monte-Carlo, key sets redrawn at the observed sizes & $\mathbf{1.0 \times 10^{-4}}$ & $< 0.01$ \\
+  \textbf{control} & cell-shuffle, sizes kept, structure destroyed & $\mathbf{0/160}$ & $< 0.30$ \\
+  transpose & descriptive only, never support & $54/54$ & --- \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\noindent
+Mean Jaccard overlap is $0.9982$ and the median key set has $2$ characters. The two
+disagreements are both in $n = 165$ seed $1$, which reads $26/28$; the other four seeds read
+$28/28$. The null is the floor a $10{,}000$-draw design can express, and it is not a formality:
+at $G_{11}$ the folded spectrum has $5$ bins, so two independent $2$-character sets coincide
+by chance with probability $1/\binom{5}{2} = 0.10$. The shuffle control does not fail by
+selecting \emph{different} characters: $0$ of $160$ shuffled blocks has any key set at all,
+so the shuffle removes the clock rather than relabelling it.
+
+What this does not have is a failed-run control. The design called for the same statistic on
+models that never generalised. There are exactly \emph{two} scorable pairs of that kind in the
+whole project, and both come from one run at test accuracy $0.7502$. That model learned most
+of the task, and our three-state rule nonetheless buckets it with the $0.146$ memorisers. Both agree, so the control
+reads $2/2$ against its own $0.50$ bar; its own null reads $p = 1.0$, because two pairs
+cannot discriminate anything. Every genuinely failed run either has no comparable pair by
+algebra ($n = 49$, $63$, $125$) or produces \emph{no key set at all} ($n = 54$ seed $1$, at
+accuracy $0.2733$). The control is underpowered rather than passing, and this section's claim
+rests on the null and the shuffle control instead. The same shape, a statistic that is load-bearing elsewhere passing on failures here, is what
+Section~\ref{sec:strata-falsifier} reports for the pre-registered primary criterion. It is
+why we score every criterion on a failure when a failure exists.
+
+\subsection{The single-seed precursor}
+\label{sec:strata-c7}
+
+The torsor coordinate was first sighted at one seed, before the pre-registration existed, by
+indexing a non-regular $\mathcal{J}$-class not by a group law it lacks but by the unit action,
+and taking the product-character transform in that coordinate. Every class beat its
+random-basis control, regular or not: $J_{11}$ at $n = 121$ scored $0.345$ against $0.124$
+($2.79\times$), $J_{5}$ at $n = 125$ scored $0.526$ against $0.156$ ($3.37\times$), and
+$J_{2}$ at $n = 120$ scored $0.476$ against $0.162$ ($2.93\times$) (1 seed). That
+observation is the origin of this section, and the section supersedes it: the same statement,
+measured at five seeds across $26$ non-unit strata under criteria committed in advance.
+
+An aggregate drawn from that single-seed table, that regular classes carry more structure
+than non-regular ones, was retracted. It was confounded by class size, $J_{1}$ being always
+regular and always largest. Size-matched within one model at $n = 120$, the only place such
+pairs exist, the two overlap. Appendix~\ref{app:retractions} carries it with the other
+retractions.
+
+\subsection{Independent replication}
+\label{sec:strata-engine}
+
+The same verdict holds on our from-scratch engine at three moduli ($119$, $121$, $125$), two
+to three seeds each: every measurable non-unit stratum carries a local clock. The two
+implementations disagree about sparsity \emph{magnitude} for the reason given in
+Section~\ref{sec:impl}, and agree about the stratified clock. One miss is reported:
+the $n = 119$ unit stratum fails G1 in one of two seeds.
+
+\subsection{What is not claimed}
+\label{sec:strata-notclaimed}
+
+\paragraph{G1, G2 and G4 are partly entailed by correctness.} By \eqref{eq:fibration} any
+\emph{correct} function on a stratum is a function of $\mathrm{dlog}(\bar{u}) +
+\mathrm{dlog}(\bar{v})$, hence supported on $\Delta$. So a perfectly confident lookup table
+already reads $D = 1.000$, $\hat{p}$ at the floor and fibre residual $0$, and the analysis code
+plants exactly that and measures it. What these criteria establish is that the logit tensor
+depends on $(u,v)$ essentially only through $u \cdot v \bmod n/m$, i.e.\ that the computation
+has collapsed onto the local ring. A lookup-table fit of $r^{2} = 0.012$--$0.074$ says the
+logits are far from a scaled one-hot, so the collapse is a real statement about the tensor.
+But a smooth function of $u \cdot v$ would also read $D \approx 1$, and these criteria cannot
+by themselves say the mechanism is a \emph{character} circuit.
+
+Sameness across strata is measured in Section~\ref{sec:strata-sameness}, and the limit of
+that measurement is the absence of a failed-run control, not the absence of the
+measurement. Every other statistic in this section is computed \emph{inside} one stratum,
+against that stratum's own local group. A model that routed each stratum to a private
+sub-circuit, each correct on its own block, would produce all of them.
+
+G5 is the criterion that says ``clock''. Single-frequency MLP neurons in local-group
+coordinates are entailed by nothing, and the shuffle control reads $0.0000$ at every stratum.
+The tuning statistic as pre-registered is cyclic-only, so G5 covers $121$, $125$, $119$'s
+sub-strata and $165$'s $\mathbb{Z}_{10}$ strata. The non-cyclic strata are covered by a
+product-character version reading $0.182$--$0.877$ against a shuffle control of $0.0000$,
+which was added after the pre-registration, is exploratory, and was never scored as G5.
+
+The model does not solve every stratum. On held-out cells, $15$ stratum-runs fall to
+$0.379$--$0.833$. Every one is below the measurability cut, and none affects the verdict. An
+earlier internal record of ours claimed every stratum at accuracy $1.0000$, but that was the
+full grid including training cells, and it is corrected here. The degradation is also not
+evidence about the algebra. Every failing stratum has $|G_{m}| \le 8$ \emph{and} at most $64$
+cells, and those are structurally coupled. So it cannot separate ``the local group is too
+small to carry a clock'' from ``too few training examples''.
+
+$n = 113$ contributes nothing to the stratum claim. A field has one stratum. It is
+the positive control and that is all.

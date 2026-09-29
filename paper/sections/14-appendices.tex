@@ -1,0 +1,146 @@
+\appendix
+
+\section{The claim ledger}
+\label{app:ledger}
+
+Every numbered claim this project made, with its verification status as recorded at the time
+of writing. Status is copied from the project's ledger rather than re-judged here. Claims
+marked ``(1 seed)'' carry that qualifier in every sentence that makes them. Retracted
+claims are in Appendix~\ref{app:retractions} and are not asserted anywhere in the body.
+
+\begin{center}
+\footnotesize
+\begin{tabular}{l p{0.27\textwidth} p{0.34\textwidth} p{0.16\textwidth}}
+  \toprule
+  & claim & evidence & status \\
+  \midrule
+  C1 & algebra table is correct & \texttt{algebra.py::\_selfcheck}, primitive roots by explicit search & verified, self-checking \\
+  C2 & non-regular $\mathcal{J}$-class counts $0,0,1,2,8$ & \texttt{j\_structure}; reproduces Prop.\ D.13 on their moduli & verified \\
+  C3 & every modulus groks & $23$ moduli, up to $5$ seeds & verified \\
+  C4 & $n=113$ replicates prior spectral statistics & $5$ seeds; key-frequency-count clause \textbf{withdrawn} & verified, 5 seeds \\
+  C5 & analysis pipeline is correct & run on a third-party published checkpoint & verified externally \\
+  C6 & clock survives prime powers & five cyclic prime powers & verified \\
+  C7 & non-regular classes carry character structure & superseded by C33 & verified, \textbf{1 seed} \\
+  C8 & key additive frequencies are CRT duals & $12$ moduli, $3$--$5$ seeds & verified \\
+  C9 & $\mathrm{Gini}_{\text{add}}$ tracks zero-divisor density & $18$ moduli & verified \\
+  C10 & from-scratch engine is correct & forward $4.4$e--$16$, gradients $2.68$e--$15$ & verified \\
+  C11 & from-scratch engine groks & acceptance test & verified \\
+  C12 & softmax collapse occurs on our engine & stamped artifact, $6.2$ orders & verified \\
+  C13 & StableMax mitigates C12 & mechanism, not the earlier $10\times$ figure & verified (mechanism) \\
+  C14 & critical dataset size is real here & $3$ seeds $\times$ $3$ moduli & verified \\
+  C15 & engine reproduces prior addition result & all $8$ criteria & pass \\
+  C17 & a frequency can be present yet vestigial & & verified, \textbf{1 seed} \\
+  C18 & the addition circuit is a clean Clock & & verified, \textbf{1 seed} \\
+  C21 & the circuit uses the embedding's key frequencies & $5$ seeds & verified \\
+  C22 & clock frequencies are causally responsible at prime powers & $p<0.01$ in $5/5$ & verified, 5 seeds \\
+  C23 & causal where there is no discrete log & $28/29$ analysable runs & verified \\
+  C24 & $40$k steps is not converged at four moduli & PR retired at composite moduli & verified \\
+  C25 & readout is invariant to the primitive root & exact to $10^{-10}$ & verified \\
+  C26 & single-checkpoint Gini is noisy, sd $0.02$--$0.044$ & & verified \\
+  C28 & the early CRT signal is CRT-specific & only magnitude discriminates & verified (specificity) \\
+  C29 & all four moduli grok on the engine & $3$ seeds, float64 & verified \\
+  C31 & the clock is in the neurons & $5$ seeds & verified \\
+  C32 & causality survives all three initialisations & $24/24$ & verified \\
+  C33 & every stratum runs a clock on its own local group & $32$ strata, $157$ measurements & verified, 5 seeds \\
+  C34 & precision changes measured sparsity \emph{in PyTorch} & the $2\times2$ & verified \\
+  C35 & $n=113$ is not special & three primes & verified \\
+  C36 & the clock is causal at $2^{7}$ & $\hat{p}=10^{-4}$ in $2/2$; $2.77$--$476\times$ & verified \\
+  C37 & $\omega(n)$ separates additive sparsity at matched zdd & $23$ moduli & \textbf{confirmatory} \\
+  C38 & the same clock across strata, not one per stratum & $158/160$ pairs, null $10^{-4}$ & verified, 5 seeds$^{\dagger}$ \\
+  C39 & key characters are what the network computes with & $3/3$ seeds, $n=113$, weight-space & verified \\
+  C40 & the same at a non-square-free modulus, non-unit rows intact & $3/3$ seeds, $n=121$, weight-space & verified \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\noindent
+$^{\dagger}$C38 ships without a working failed-run control: the only two scorable
+failed-run pairs in the project come from one model at test accuracy $0.7502$, and its own null
+reads $p = 1.0$. Section~\ref{sec:strata-sameness} states this where the claim is made.
+
+\paragraph{On the word \emph{causal} in this table.} These rows are the project's claim ledger,
+quoted in the wording each claim was registered under. Throughout, \emph{causal} and
+\emph{causally responsible} mean the logit-spectrum ablation of
+Section~\ref{sec:methods-causal} (restricted and excluded losses against a permutation null),
+and never weight ablation or activation patching, neither of which this paper performs.
+
+\section{Retractions}
+\label{app:retractions}
+
+Five claims were made and withdrawn. Each is recorded with what killed it and the control that
+would have caught it earlier. No paper in the corpus this one joins does this; we do it because
+it is what makes the surviving claims checkable.
+
+Three of the five died to the same shape, and it is worth stating once in symbols. A grouping
+variable $X$ is compared against a response $Y$, but $X$ is structurally coupled to a size $S$
+that $Y$ also tracks:
+\begin{equation}
+  \label{eq:confound}
+  X \longrightarrow S \longrightarrow Y,
+  \qquad\text{so } \rho(X, Y) \text{ is large while } \rho(X, Y \mid S) \text{ is not,}
+\end{equation}
+with $\rho(\cdot \mid \cdot)$ the partial correlation of \eqref{eq:partial}. The cheap general
+defence, which caught all three, is to run the statistic on a control that has the size
+structure and not the effect: shuffled labels, flat variance, a permuted grouping. If the
+control reproduces the result, there is no result.
+
+\paragraph{C19: $\varphi(n)$-normalised grokking time separates cyclic from non-cyclic
+moduli.} \emph{Killed by:} a size confound in the normalisation itself. Raw grokking time
+\emph{decreases} with $\varphi$ ($\rho = -0.665$), so dividing by $\varphi$ over-corrects: with
+$S = \varphi(n)$ in \eqref{eq:confound}, $\rho(-\varphi, \text{steps}/\varphi) = +0.870$ over
+$15$ moduli, an ordering manufactured entirely by the normalisation. The
+cyclic moduli in the original sample were simply the three largest $\varphi$. \emph{The control
+that would have caught it:} correlating the normalised statistic with the quantity it was
+normalised by, before interpreting it.
+
+\paragraph{C20: activation variance is graded by $\mathcal{J}$-class depth.} \emph{Killed
+by:} a size confound between depth and block cell count, coupled through
+$|J_{d}| = \varphi(n/d)$ in \eqref{eq:jclass}. $\rho(\text{cells},
+\text{variance})$ runs $+0.856$ to $+0.949$, and a flat-variance \emph{noise} control scores
+$\rho = +0.942$. \emph{The control:} measuring every block at an equal subsampled cell count,
+and dropping blocks that cannot supply it rather than reporting them as zero.
+
+\paragraph{C7b: regular $\mathcal{J}$-classes carry more structure than non-regular ones.}
+\emph{Killed by:} a size confound between regularity and class size: $J_{1}$ is always
+regular and, by \eqref{eq:jclass}, always the largest class. Size-matched within one model at $n = 120$, the only place such
+pairs exist, the two overlap. \emph{The control:} the size-matched comparison, which is what
+retired it.
+
+\paragraph{C27: a network can lose a learned circuit.} \emph{Killed by:} right-censoring. The
+claim was one run read at its final logged sample. Across $11$ long runs there are $19$
+post-grok excursions below accuracy $0.90$, every one exactly one logging interval wide, $18$
+of which recover. The nineteenth merely begins at the last step at which an observation
+exists, and that run had recovered from a deeper excursion $4{,}600$ steps earlier. \emph{The control:}
+classifying a run by a window rather than by its last row, which is now done everywhere.
+
+\paragraph{C30: training precision changes measured sparsity.} \emph{Killed by:} a controlled
+A/B that varied dtype inside our engine alone and returned the wrong sign, effect size
+$-0.07$. It is superseded by C34, which is the same phenomenon as an \emph{interaction}:
+precision is decisive in PyTorch and inert in our engine. C30's main-effect sentence is never
+revived. \emph{The control:} running the variable. The claim had a $7/7$ correlation and a
+mechanism that tied up three loose ends, which is the most persuasive shape a wrong claim can
+take, and no amount of care in the statistics would have rescued it.
+
+\section{Pre-registrations}
+\label{app:prereg}
+
+Every experiment whose criteria could be fixed in advance has a pre-registration committed
+before the run, and the git timestamp is the evidence the criteria predated the result. Each is
+named in the body beside the result it governs, with its commit. Two exceptions are stated
+where they occur: the first gate's criteria, two of which were edited after failing
+(Section~\ref{sec:calib}), and the $\omega(n)$ analysis, which is confirmatory because the
+bands were seen before the pre-registration was written.
+
+\section{Per-modulus and per-stratum tables}
+\label{app:tables}
+
+The full per-stratum table underlying Section~\ref{sec:strata}, and per-modulus spectral
+statistics for all $23$ moduli, regenerate from the repository.
+
+\section{Instruments}
+\label{app:instruments}
+
+The from-scratch autograd engine, its finite-difference test suite, the memory guards, and the
+self-check suite that gates every claim-carrying script. One item is worth recording as a
+limitation of its own: the engine's reported speedup is verified only for numerics, to
+$2.68 \times 10^{-15}$; the wall-clock figure is unstamped and machine-dependent.

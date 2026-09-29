@@ -1,0 +1,95 @@
+\section{Introduction}
+\label{sec:intro}
+
+Grokking, where generalisation arrives long after a training set is fit, is useful here as an
+instrument rather than as a subject. A small transformer trained to convergence on a closed
+algebraic task can be reverse-engineered completely, and the resulting circuit is a statement
+about what the architecture does with the structure it is given
+\citep{power2022grokking,nanda2023progress}.
+
+Modular multiplication is the harder case, and a change of basis is the source. For
+$a + b \bmod n$ the network represents inputs by characters of $\mathbb{Z}/n\mathbb{Z}$ and
+adds phases. For $a \cdot b \bmod n$ the same circuit exists but lives in the multiplicative
+character basis, reached by discrete log, and a model that is sharply sparse there looks dense
+in raw residue coordinates \citep{nguyen2026dlogclock}. The basis is not a presentational
+choice: a statistic read in the wrong one inverts the conclusion.
+
+That account needs the units to form a group, and for a general modulus most of the
+multiplication table is not units. \citet{chen2026multiplication} took the step past it: they
+model $(\mathbb{Z}/n\mathbb{Z}, \cdot)$ as a monoid, show that character-style computation
+localises to disjoint algebraic strata identified with Green's $\mathcal{J}$-classes, and
+demonstrate class-sensitive routing. That framing is theirs. Independent derivation is
+not claimed and would not be a defence: \citet{chen2026multiplication} published the stratified
+framing before this work reached it, and they are cited as its origin. Their result covers four
+moduli, all square-free, and they state its two limitations themselves: the evidence is
+\emph{only correlational}, and non-square-free moduli introduce non-regular
+$\mathcal{J}$-classes containing nilpotent elements, which they describe as breaking the
+reduction to local group characters. This paper answers both. It is the non-square-free
+completion of their programme, and it replaces correlation with an ablation: the first
+of the two instruments they ask for, not the second (Sections~\ref{sec:causal} and
+\ref{sec:strata}).
+
+The reduction does not break. Writing $x = d \cdot u$ makes a
+$\mathcal{J}$-class a torsor under the \emph{local} units, so a stratum is multiplication
+in a smaller ring on that stratum's own local group $G_{m}$. Nilpotents \emph{collapse} a stratum onto a
+smaller local group; they do not destroy the character structure
+(Theorem~\ref{thm:stratum}, Section~\ref{sec:strata}). The algebra of $n$
+does not change the mechanism. It changes how many strata there are and how they nest: one
+for a field, a nested $p$-adic chain for a prime power, a divisor lattice for a square-free
+composite.
+
+% STE procedural
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{../figures/F0_pipeline.pdf}
+  \caption[What this paper does.]{\textbf{What this paper does.} Train a one-layer transformer to grok
+    $a \cdot b \bmod n$ at each of $23$ moduli. Then read the trained model in the coordinate
+    the algebra supplies. The first three steps are standard. The fourth is not. Relabel each
+    unit by its exponent tuple. Only then does multiplication of units become addition.
+    Theorem~\ref{thm:stratum} gives every stratum $J_{d} \times J_{e}$ its own such
+    coordinate, on its own local group $G_{m}$.\par
+    Measure and ablate per stratum, in that stratum's coordinate and not in the raw residues
+    of $\mathbb{Z}/n\mathbb{Z}$. The figure regenerates from
+    \texttt{src/viz/plots.py::pipeline}.}
+  \label{fig:pipeline}
+\end{figure}
+% STE end
+
+\paragraph{Contributions.}
+\begin{enumerate}
+  \item \emph{The stratum identity} (Theorem~\ref{thm:stratum}), proved and also
+    checked by exhaustion, which
+    turns ``non-regular classes break the reduction'' into ``non-regular classes carry the
+    reduction on a smaller group'', and fixes what to measure without any freedom of choice.
+  \item \emph{The mechanism, measured on every stratum}: $32$ strata across six moduli, $157$
+    stratum-run measurements and $12$ distinct local groups, with criteria committed before any
+    per-stratum number existed. It raises the fraction of the multiplication table accounted
+    for from $23.5\%$ to $82.3\%$ at $n = 165$ and from $64.0\%$ to $89.6\%$ at $n = 125$
+    (Section~\ref{sec:strata}, five seeds).
+  \item \emph{Ablation evidence across $23$ moduli, $14$ of them non-square-free}, including
+    all six prime powers (Section~\ref{sec:causal}, five seeds at six moduli, three at the
+    rest). It reaches $2^{7}$, nilpotency depth $7$, where the key set is beyond all
+    $10{,}000$ draws in $2/2$ runs (improvement $2.77$--$476\times$) in product-character
+    coordinates where no discrete log exists.
+  \item \emph{One mechanism, not one per stratum}: strata that share a local group select
+    exactly the same characters of it, $158$ of $160$ pairs across five seeds, with a
+    cell-shuffle control at $0$ of $160$. This is the test that separates a single indexed
+    mechanism from a private sub-circuit per block (Section~\ref{sec:strata-sameness}). It
+    ships without a failed-run control, and Section~\ref{sec:strata-sameness} says why.
+  \item \emph{The negative results, reported as results}. The pre-registered primary
+    criterion of our own stratum test does not discriminate a grokked model from a failed one,
+    and the verdict rests on the three criteria that do. The early CRT enrichment ramp is not a
+    progress measure. Five earlier claims of ours are retracted in
+    Appendix~\ref{app:retractions}, with what killed each and the control that would have
+    caught it.
+\end{enumerate}
+
+Section~\ref{sec:related} relates this work to prior mechanistic accounts.
+Section~\ref{sec:setup} defines the task and its strata, and Section~\ref{sec:methods} the
+model, the coordinates, the statistics and the ablation protocol. Section~\ref{sec:calib}
+validates the pipeline against published results and compares our two implementations.
+Section~\ref{sec:clock} reports where models grok and the clock at prime powers,
+Section~\ref{sec:causal} the ablation evidence, Section~\ref{sec:strata} the measurement on
+every stratum and Section~\ref{sec:crt} the additive CRT structure.
+Section~\ref{sec:discussion} discusses the results, Section~\ref{sec:limits} states the
+limitations and Section~\ref{sec:conclusion} concludes.

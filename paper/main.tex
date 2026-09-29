@@ -1,0 +1,70 @@
+% The master paper. Every venue cut (paper/CUTS.md) is a variant of THIS file that
+% \input s a subset -- never a second draft. Overleaf is the compiler; this repo is the
+% source of truth and is never edited from Overleaf.
+% TMLR's official style (tmlr.sty/tmlr.bst/fancyhdr.sty, Apache-2.0, TMLR_STYLE_LICENSE,
+% from github.com/JmlrOrg/tmlr-style-file). With no option it is the ANONYMOUS submission:
+% the author block below is hidden. [preprint] de-anonymises for arXiv; [accepted] is the
+% camera-ready. tmlr.sty sets the page (6.5in text width) and loads natbib itself.
+\documentclass[10pt]{article}
+\usepackage{tmlr}
+% \usepackage[preprint]{tmlr}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage[colorlinks=true,allcolors=blue]{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\theoremstyle{plain}
+
+% Table glyphs, so the modulus table's cells stay bare (register sec. 6).
+\newcommand{\yes}{\checkmark}
+\newcommand{\no}{--}
+\DeclareMathOperator{\Jclass}{J}
+
+% "Causal" was dropped from this title 2026-09-21. The ablation FFTs the SAVED LOGIT
+% TENSOR -- it re-runs no forward pass, ablates no weight, patches no activation -- so the
+% word was doing work the protocol does not do. The evidence class is stated precisely in
+% the abstract and in Section 5 instead of asserted in three words here.
+\title{A Clock on Every Stratum:\\
+Character Circuits for Modular Multiplication\\
+at Non-Square-Free Moduli}
+% Hidden in the submission build (tmlr with no option). Single author: the researcher
+% decided 2026-09-26 that there is no supervisor co-author for now.
+% The author block is completed at submission; this repository
+% carries no authorship metadata by design. See README.
+\author{}
+
+\begin{document}
+\maketitle
+
+\input{sections/00-abstract}
+\input{sections/02-introduction}
+\input{sections/03-related}
+\input{sections/01-setup}
+\input{sections/05-methods}
+\input{sections/10-calibration}
+\input{sections/11-implementations}
+\input{sections/06-results-clock}
+\input{sections/07-results-causal}
+\input{sections/08-results-strata}
+\input{sections/09-results-crt}
+\input{sections/15-discussion}
+\input{sections/12-limitations}
+\input{sections/13-conclusion}
+
+\bibliographystyle{tmlr}
+\bibliography{refs}
+
+\input{sections/14-appendices}
+\input{sections/16-reproduction}
+
+\end{document}

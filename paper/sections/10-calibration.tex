@@ -1,0 +1,112 @@
+\section{Validation}
+\label{sec:calib}
+
+Every result below depends on an analysis pipeline being right. This section is the evidence
+that it is, kept short.
+
+\subsection{Calibration against published results}
+
+Table~\ref{tab:calib} sets our measurements beside the published values they reproduce.
+
+% STE descriptive
+\begin{table}[t]
+  \centering
+  \caption{\textbf{Our measurements beside the published values they reproduce, under the
+    same protocol.} The first two blocks are PyTorch float32 runs, and the third block is
+    the from-scratch engine. A value after $\pm$ is the standard deviation across seeds.
+    The reference values come from each paper's text, except in the $n = 165$ block. There
+    the reference column is their published checkpoint, scored by our pipeline.}
+  \label{tab:calib}
+  \begin{tabular}{llll}
+    \toprule
+    & quantity & this work & reference \\
+    \midrule
+    \multicolumn{4}{l}{\citet{nguyen2026dlogclock}, $n = 113$, units only, their protocol, five seeds} \\
+    & $\mathrm{Gini}_{\text{mult}}$ & $0.547 \pm 0.010$ & $0.579$ \\
+    & $\mathrm{PR}_{\text{mult}}$ & $4.67 \pm 0.44$ & $4.1$ \\
+    & $\mathrm{Gini}_{\text{add}}$ & $0.017 \pm 0.002$ & $0.071$ \\
+    & $\mathrm{PR}_{\text{add}}$ & $55.80 \pm 0.05$ & $52.7$ \\
+    & key frequencies & $4.6 \pm 0.8$ & $4$ \\
+    \midrule
+    \multicolumn{4}{l}{\citet{chen2026multiplication}, $n = 165$, our model against their checkpoint} \\
+    & $\mathrm{Gini}_{\text{mult}}$ & $0.629$ & $0.637$ \\
+    & participation ratio & $4.76$ & $4.85$ \\
+    & key set against $P(n)$ & exact & exact \\
+    \midrule
+    \multicolumn{4}{l}{\citet{nanda2023progress}, $a + b \bmod 113$, one seed} \\
+    & grokking step & $6{,}900$ & $5$--$10$k \\
+    & key frequencies in $W_{E}$ & $5$ & $5$ \\
+    & loss without the non-key frequencies & improves $7.3\times$ & improves \\
+    & single-frequency neurons of $512$ & $85.0\%$ & $84.6\%$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+% STE end
+
+\paragraph{The strongest item runs on someone else's weights.} We ran our analysis code on
+\citet{chen2026multiplication}'s published $n = 165$ checkpoint and on a model we trained
+ourselves, and they agree (Table~\ref{tab:calib}). Two independently trained models, two
+codebases, the same numbers. Their own $\mathcal{J}$-class claim also replicates on their
+checkpoint: the embedding separation ratio is $1.03$ against $0.63$ for a shuffled-label
+control. It is a modest separation whose meaning comes entirely from the control.
+
+\paragraph{We replicate the multiplicative-grokking result, with two qualifications.}
+Table~\ref{tab:calib} gives the five-seed values at $n = 113$ under
+\citet{nguyen2026dlogclock}'s exact protocol. The first qualification is that their
+key-frequency count does not replicate as a property of the arm. We find $4.6 \pm 0.8$ key
+frequencies ($4, 6, 4, 4, 5$), matching their $4$ in three of five seeds. An earlier version of
+this claim reported ``$4$ key frequencies, matching their $4$'' from seed $0$. That is a seed
+property, and we withdraw the clause. The second qualification is that the agreement holds
+because both arms are float32. The same code at float64 reads $0.7728$. That is not a claim
+their number is wrong: it reproduces. But a published float32 Gini is not comparable to a
+float64 one.
+
+\paragraph{The engine reproduces \citet{nanda2023progress} on addition.} As a gate before any
+multiplication result was trusted, we trained $a + b \bmod 113$ on our from-scratch autograd
+engine. It grokked at step $6{,}900$, inside their stated $5$--$10$k band at weight decay
+$1.0$, with five key frequencies in $W_{E}$ against their five. Ablating all non-key
+frequencies \emph{improves} loss $7.3\times$ where they report an improvement, and $85.0\%$ of
+$512$ neurons are single-frequency tuned against their published $84.6\%$. That last number,
+from an independent implementation with its own autograd, is the strongest single piece of
+evidence that the engine is sound.
+
+\paragraph{Two of that gate's criteria were edited after they failed.} The pre-registered
+criteria passed unmodified. Two additional criteria beyond them did not, and they were
+rewritten to implement what \citet{nanda2023progress} state. One had scored a single
+two-dimensional bin where they score a degree-two polynomial spanning eight. The corrected
+version landing at $85.0\%$ against a published $84.6\%$ is independent evidence the fix is
+right. The ordering was nevertheless wrong, and every criterion for every experiment after
+that gate was frozen in a committed pre-registration before the run.
+
+\paragraph{The gate-1 circuit is a clean Clock \textup{(1 seed)}.} Its top eight logit
+components are all $a+b$ terms, ranked $(\pm 33, \pm 33)$ at $100\%$, $(\pm 45, \pm 45)$ at
+$31.9\%$, $(\pm 5, \pm 5)$ at $28.0\%$ and $(\pm 1, \pm 1)$ at $24.0\%$, and \emph{the rank
+order by logit energy is identical to the rank order by causal ablation delta}. Among the top
+sixteen components the energy share is $100\%$ $a+b$ and $0\%$ $a-b$.
+
+Critical dataset size is real here, reproducing \citet{power2022grokking}. The sweep in
+Section~\ref{sec:clock-grok} is the measurement, and it is what identifies $49$, $54$ and $63$
+at a $0.30$ training fraction as dataset-size nulls rather than algebraic obstructions.
+
+\subsection{Softmax collapse}
+\label{sec:calib-collapse}
+
+Under cross-entropy with weight decay $1.0$, our engine exhibits the no-gradient regime
+\citet{prieto2025grokking} describe. At $n = 17$ with a $0.40$ training fraction, the global
+gradient norm falls $6.2$ orders of magnitude, from $3.41 \times 10^{-1}$ to
+$2.35 \times 10^{-7}$. Meanwhile the mean probability of the correct class rises to
+$1 - 3.4 \times 10^{-8}$ and the maximum logit sits near $50$. Past that point only weight
+decay moves the weights. In float64 the probability never reaches $1$ exactly. It displays as
+$1.000000$ from step $1{,}000$ and does not saturate in the arithmetic, so the no-gradient
+regime here is driven by the logit gap rather than by a rounded probability.
+
+\paragraph{StableMax mitigates the mechanism.} Trained identically, the StableMax arm retains
+more gradient ($7.51 \times 10^{-7}$ against $2.35 \times 10^{-7}$ at step $4{,}000$), and its
+correct-class probability stops two orders further from $1$, at $0.999998$ against
+$1 - 3.4 \times 10^{-8}$. An earlier internal measurement of ours put the gradient ratio at
+roughly $10\times$ ``at the same logit scale''. Re-run with a fixed seed and a saved artifact,
+it is $3.2\times$. The two arms are also \emph{not} at the same logit scale: $50.1$ against
+$19{,}154.3$, a factor of $383$, because StableMax's logits have no saturation ceiling. The
+direction and the mechanism hold, and the ratio was never a like-for-like comparison. Neither
+arm generalises at this configuration, which is critical dataset size at $n = 17$ and not a
+StableMax failure.

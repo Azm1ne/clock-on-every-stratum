@@ -1,0 +1,35 @@
+[
+  {
+    "arm": "B_thesis",
+    "n": 113,
+    "seed": 0,
+    "units_only": false,
+    "steps": 40000,
+    "grok_step": 5800,
+    "final_acc_all_pairs": 1.0,
+    "final_test_acc": 1.0,
+    "elapsed_s": 2128.5
+  },
+  {
+    "arm": "B_thesis",
+    "n": 113,
+    "seed": 1,
+    "units_only": false,
+    "steps": 40000,
+    "grok_step": 7200,
+    "final_acc_all_pairs": 1.0,
+    "final_test_acc": 1.0,
+    "elapsed_s": 4577.3
+  },
+  {
+    "arm": "B_thesis",
+    "n": 113,
+    "seed": 2,
+    "units_only": false,
+    "steps": 40000,
+    "grok_step": 5600,
+    "final_acc_all_pairs": 1.0,
+    "final_test_acc": 1.0,
+    "elapsed_s": 6478.1
+  }
+]

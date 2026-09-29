@@ -1,0 +1,142 @@
+\section{Experimental details and reproduction}
+
+\subsection{Code and data availability}
+\label{sec:availability}
+
+Every number in this paper regenerates from the code released with it (the supplementary
+material during review). The release holds the autograd engine, the transformer, the analysis
+toolkit, the kernels that produced each sweep, and \texttt{scripts/reproduce.sh}. That script
+re-runs every analysis from the saved artifacts, with pinned dependencies and fixed seeds. It
+does not train a model (Section~\ref{sec:repro-procedure}). Saved artifacts carry a provenance stamp
+recording the git SHA, the dtype, the account whose compute produced them and the exact
+configuration. \texttt{test\_paper\_numbers.py} re-derives every load-bearing number in this
+manuscript, captions included, from those artifacts rather than from the prose, and it runs as
+part of the self-check suite. Two limitations of that guarantee are stated in
+Section~\ref{sec:limits}. $68$ artifacts from the three earliest sweeps carry no usable SHA,
+and their code version is recovered by argument rather than by stamp. Figures are regenerated
+rather than stored, so a figure is only as reproducible as the artifact beneath it.
+
+\subsection{The sweeps}
+\label{sec:sweeps}
+
+% STE descriptive
+Tables~\ref{tab:sweeps} and~\ref{tab:sweep-files} list every sweep that supplies a result. The
+first table gives the configuration of each sweep. The second table gives the script that
+trained it, the directory of its artifacts, the script that analyses it and its compute.
+\texttt{scripts/sweep\_table.py} writes both tables from the artifacts and the run logs.
+\texttt{test\_paper\_numbers.py} checks that the tables here are equal to its output.
+
+\begin{table}[ht]
+  \centering
+  \footnotesize
+  \caption{\textbf{The configuration of each sweep.} ``Engine'' is our from-scratch
+    implementation and ``PyTorch'' is the reference implementation. Every sweep uses AdamW
+    with learning rate $10^{-3}$ and weight decay $1.0$, full-batch. A moduli cell with more
+    than four moduli gives their count and range. Table~\ref{tab:moduli} lists each modulus.}
+  \label{tab:sweeps}
+  \begin{tabular}{llllllll}
+    \toprule
+    sweep & code & precision & moduli & seeds & steps & train fraction & platform \\
+    \midrule
+    k01 & PyTorch & float32 & $6$, $113$ to $165$ & $0$ & $25{,}000$ & $0.3$ & Kaggle T4 \\
+    k02 & PyTorch & float32 & $6$, $113$ to $165$ & $0$--$4$ & $40{,}000$ & $0.3$ & Kaggle T4 \\
+    k03 & PyTorch & float32 & $6$, $113$ to $165$ & $0$--$4$ & $40{,}000$ & $0.3$ & Kaggle T4 \\
+    k04 & PyTorch & float32 & $12$, $49$ to $169$ & $0$--$2$ & $40{,}000$ & $0.3$ & Kaggle T4 \\
+    k05 & PyTorch & float32 & $49$, $54$, $63$ & $0$--$2$ & $40{,}000$ & $0.3$, $0.5$, $0.8$ & Kaggle T4 \\
+    k06 & PyTorch & float32 & $119$, $120$, $125$, $165$ & $0$--$2$ & $120{,}000$ & $0.3$ & Kaggle T4 \\
+    k07 & PyTorch & float32 & $113$ & $0$--$4$ & $40{,}000$ & $0.3$ & Kaggle T4 \\
+    k08 & PyTorch & float32 & $113$ & $0$--$7$ & $40{,}000$ & $0.3$ & Kaggle T4 \\
+    k09 & PyTorch & float32 & $5$, $91$ to $131$ & $0$--$2$ & $40{,}000$ & $0.3$ & Kaggle T4 \\
+    N7 & engine & float64 & $113$, $119$, $121$, $125$ & $0$--$2$ & $40{,}000$ & $0.3$ & CPU \\
+    N9 & engine & float32 & $113$ & $0$--$2$ & $40{,}000$ & $0.3$ & CPU \\
+    O18 & PyTorch & float32 & $113$ & $0$--$2$ & $40{,}000$ & $0.3$ & CPU \\
+    O18, f64 & PyTorch & float64 & $113$ & $0$--$2$ & $40{,}000$ & $0.3$ & CPU \\
+    O18-T & engine & float64 & $113$ & $0$ & $40{,}000$ & $0.3$ & CPU \\
+    I1 & engine & float64 & $113$ & $0$--$2$ & $40{,}000$ & $0.3$ & CPU \\
+    I1b & engine & float64 & $121$ & $0$--$2$ & $40{,}000$ & $0.3$ & CPU \\
+    Gate 1 & engine & float64 & $113$ & $0$ & $25{,}000$ & $0.3$ & CPU \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[ht]
+  \centering
+  \footnotesize
+  \caption{\textbf{The files and the compute of each sweep.} N9 runs \texttt{run\_n7.py}
+    with \texttt{ENGINE\_DTYPE=float32}. I1 and I1b train with \texttt{run\_n7.py} and then
+    measure with \texttt{run\_intervention.py}. The hours of a Kaggle sweep are the wall time
+    of its T4 session. The hours of a CPU sweep are the sum of the wall times of its runs,
+    and some of those runs were in parallel.}
+  \label{tab:sweep-files}
+  \begin{tabular}{lllll}
+    \toprule
+    sweep & training script & artifact directory & analysis script & hours \\
+    \midrule
+    k01 & \texttt{kernels/k01\_scout/run.py} & \texttt{results/k01\_scout} & \texttt{analyze\_scout.py} & $0.6$ \\
+    k02 & \texttt{kernels/k02\_grid/run.py} & \texttt{results/k02\_grid} & \texttt{analyze\_k02.py} & $3.7$ \\
+    k03 & \texttt{kernels/k03\_grid\_acts/run.py} & \texttt{results/k03\_grid\_acts} & \texttt{analyze\_k03.py} & $3.8$ \\
+    k04 & \texttt{kernels/k04\_extended/run.py} & \texttt{results/k04\_extended} & \texttt{analyze\_k04.py} & $3.2$ \\
+    k05 & \texttt{kernels/k05\_lowdata/run.py} & \texttt{results/k05\_lowdata} & \texttt{analyze\_k05.py} & $1.3$ \\
+    k06 & \texttt{kernels/k06\_horizon/run.py} & \texttt{results/k06\_horizon} & \texttt{analyze\_k06.py} & $4.7$ \\
+    k07 & \texttt{kernels/k07\_arma\_seeds/run.py} & \texttt{results/k07\_arma\_seeds} & \texttt{analyze\_k07.py} & $0.5$ \\
+    k08 & \texttt{kernels/k08\_init/run.py} & \texttt{results/k08\_init} & \texttt{analyze\_k08.py} & $2.2$ \\
+    k09 & \texttt{kernels/k09\_primes\_zdd/run.py} & \texttt{results/k09\_primes\_zdd} & \texttt{analyze\_k09.py} & $1.6$ \\
+    N7 & \texttt{run\_n7.py} & \texttt{results/n7\_engine} & \texttt{analyze\_n7.py} & $68.5$ \\
+    N9 & \texttt{run\_n7.py} & \texttt{results/n9\_f32} & \texttt{analyze\_n9.py} & $9.6$ \\
+    O18 & \texttt{run\_o18\_cpu.py} & \texttt{results/o18\_cpu} & \texttt{analyze\_n9.py} & $1.8$ \\
+    O18, f64 & \texttt{run\_o18\_cpu.py -{}-f64} & \texttt{results/o18\_f64} & \texttt{analyze\_n9.py} & $3.2$ \\
+    O18-T & \texttt{run\_o18\_transplant.py} & \texttt{results/o18\_transplant} & \texttt{run\_o18\_transplant.py} & $5.3$ \\
+    I1 & \texttt{run\_n7.py} & \texttt{results/i1\_internal} & \texttt{run\_intervention.py} & $20.7$ \\
+    I1b & \texttt{run\_n7.py} & \texttt{results/i1\_internal} & \texttt{run\_intervention.py} & $24.3$ \\
+    Gate 1 & \texttt{run\_gate1.py} & \texttt{results/gate1} & \texttt{test\_gate1.py} & $3.1$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+% STE end
+
+\subsection{Reproduction procedure}
+\label{sec:repro-procedure}
+
+% STE procedural
+To reproduce the numbers and the figures of this paper, do these steps:
+\begin{enumerate}
+  \item Unpack the supplementary archive.
+  \item Install Python 3.12.13.
+  \item Install the pinned dependencies with \texttt{pip install -r requirements.txt}.
+  \item Put the saved artifacts in \texttt{results/} and the run logs in \texttt{logs/}.
+  \item From the top directory, run \texttt{bash scripts/reproduce.sh}.
+\end{enumerate}
+% STE end
+
+% STE descriptive
+The script does not train a model. It runs the self-checks and the analysis scripts of
+Table~\ref{tab:sweep-files}. The self-checks test Proposition~\ref{prop:torsor} and
+Theorem~\ref{thm:stratum} by exhaustion at every modulus up to $200$. The script also runs
+\texttt{test\_paper\_numbers.py}, which calculates the numbers in the text, the tables and the
+captions again from the artifacts. It fails on a number that it does not calculate, unless
+\texttt{paper/number\_ledger.json} records that number with a reason.
+
+\texttt{scripts/render\_all.py} then draws every figure again.
+\texttt{scripts/modulus\_table.py} writes Table~\ref{tab:moduli}, and
+\texttt{scripts/sweep\_table.py} writes Tables~\ref{tab:sweeps} and~\ref{tab:sweep-files}. The
+script needs no GPU. Its longest step is \texttt{analyze\_gate2.py} on the k03 sweep, which
+took $8.5$ hours on our CPU.
+% STE end
+
+% STE procedural
+To train a sweep again, do these steps:
+\begin{enumerate}
+  \item Run \texttt{scripts/sweep\_table.py -{}-commands}.
+  \item Find the sweep. The output gives its git SHA and its exact command.
+  \item Run that command from the top directory.
+\end{enumerate}
+% STE end
+
+% STE descriptive
+The self-check of \texttt{sweep\_table.py} makes sure that each command issues the arguments
+that the artifacts of its sweep record. It also makes sure that the training code at the
+current commit is the same as at that SHA. Where the code is different, the self-check makes
+sure that the difference cannot change a result. A Kaggle
+sweep runs on a GPU without deterministic settings. Thus its second run is not guaranteed to be
+bit-identical to the first (Section~\ref{sec:impl}).
+% STE end

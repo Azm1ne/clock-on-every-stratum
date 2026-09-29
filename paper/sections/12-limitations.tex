@@ -1,0 +1,99 @@
+\section{Limitations}
+\label{sec:limits}
+
+% STE descriptive
+\paragraph{The early enrichment ramp is not a progress measure.} The CRT enrichment rises
+monotonically from early training in grokked runs. It does the same in runs that never
+generalise, and it ends higher than grokked runs reach early (Section~\ref{sec:crt-ramp}).
+Neither the ramp's presence, its monotonicity nor its permutation $p$ distinguishes a model
+that found the circuit from one that memorised its training split. Only the final enrichment
+magnitude does. To settle whether any early signal is diagnostic, a statistic must be scored on
+a failed-run control before it is proposed. We now apply that procedure, and we did not apply
+it when we first measured the ramp.
+
+\paragraph{The engine's dtype-robustness is unexplained.} Section~\ref{sec:impl} shows that
+the engine--PyTorch sparsity gap is precision that acts on PyTorch. It leaves open why our
+engine reaches the float64 answer at either dtype. We eliminated three candidates under a
+pre-registration with both controls: residual type promotion, matmul accumulation order and
+softmax formulation. No candidate survives. An operator-by-operator differential trace of a
+single training step at both dtypes would settle it.
+
+\paragraph{No algebraic property predicts grokking time.} Grokking time varies by a factor of
+$3.8$ across seeds at one modulus. Two claims of ours about how it orders across moduli were
+retracted. One was lost to seed variance, and one to a normalisation that manufactured the order
+it reported. Nothing in Table~\ref{tab:moduli} predicts it in this data. To establish
+that a property does would need many more seeds per modulus than five, at a cost we could
+not meet.
+
+\paragraph{$\omega(n)$ is confirmatory, not a discovery.} The additive-sparsity bands were seen
+before the pre-registration that tested them, on the same data. A pre-registration cannot
+convert that into a prediction. The confounds are dead and $\omega$ does not displace
+zero-divisor density, and this data cannot rank the two (Section~\ref{sec:crt-omega}). Its
+designed falsifier at $n = 2^{7}$ landed between the two predicted intervals, and neither
+predictor was accurate. To rank the two requires moduli chosen to separate them, trained
+after the prediction is fixed.
+
+\paragraph{Three claims rest on a single seed.} The torsor coordinate as first sighted, the
+vestigial embedding frequency, and the full mechanistic readout of the addition control are
+each one seed. They are marked as such wherever they appear. The first is superseded by a
+five-seed result, and nothing rests on it. The other two are reported as observations. The four
+additional seeds the runs already support would settle each.
+
+\paragraph{Post-grok instability is observed and not explained.} Under weight decay $1.0$,
+accuracy excursions below $0.90$ after grokking are common. There are $19$ across $11$ long
+runs, all exactly one logging interval wide. Their rate rises with horizon, $0.33\%$ of
+samples at $120{,}000$ steps against $0.09\%$ at $40{,}000$. We previously read one such
+excursion, which touched a run's final logged sample, as evidence that a network can lose a
+learned circuit. It is an artefact of censored data, and the claim is retracted. What causes the
+excursions is not addressed here.
+
+A finer logging interval through one excursion would show whether the circuit or the readout
+is perturbed.
+
+\paragraph{One test was underpowered.} A search for a specific rare event returned $0$ of
+$453$, where the no-effect expectation was $0.68$. The pre-registered probability of zero
+events under the effect was also about $0.51$. So the test distinguishes nothing, and its null
+is not reported as a result. Only a longer training horizon can expect enough events to decide
+it.
+
+\paragraph{Small models, one task family.} Every result comes from a single-layer
+transformer, $d_{\text{model}} = 128$, on $a \cdot b \bmod n$ for $n \le 169$. The weight decay
+has one value, and so does the training fraction outside the sweep of
+Section~\ref{sec:clock-grok}. We do not show that the stratified mechanism is what larger
+models or other algebraic tasks do. \citet{zhong2023clock} establish that architectural and
+hyperparameter choices can yield different algorithms on a closely related task. The natural
+next test is the same measurement on non-commutative finite groups. There,
+\citet{chughtai2023toy}'s representation-theoretic account gives an independent prediction of
+what the strata should be.
+
+\paragraph{The earliest three sweeps carry no provenance stamp, and their code version is
+recovered by argument rather than by record.} We added the provenance stamp after the first
+three sweeps ran. So $37$ artifacts carry no stamp at all and $31$ carry the literal string
+\texttt{unknown} in place of a commit. Every later sweep, and every run of the from-scratch
+engine, carries a real commit. The affected artifacts are behind
+Sections~\ref{sec:causal}, \ref{sec:strata} and \ref{sec:crt}, which is most of what this
+paper claims. So we state the recovery explicitly rather than leave it implicit.
+
+For the third sweep, the training script has \emph{exactly one} version in the repository's
+history. So its code version is determined, and the \texttt{unknown} string records a stamp
+failure rather than an ambiguity. For the second sweep, the script has three versions, and we
+check their differences mechanically. The model's forward computation and its
+non-instrumented return are byte-identical across all three. The only change is the tuple
+returned when activations are requested, and the training and evaluation call sites never
+request it.
+
+The first sweep, a six-run scout, ran \emph{before} the repository's first commit, so its
+history cannot certify what ran. Instead, the source that the compute platform stored for the
+version behind those artifacts is byte-identical (equal SHA-256) to the one committed script.
+The training path is therefore determined in all three cases.
+
+What remains true is that this is a reconstruction and not a stamp. It rests on a complete
+repository history and, for the scout, on the platform's stored record. Every later artifact
+rests on a commit recorded at the moment it was written.
+
+The engine's own first run, the addition gate of Section~\ref{sec:calib}, also predates the
+repository and was first saved without a stamp. The engine is deterministic and full-batch,
+so we re-ran it at a recorded commit. It reproduced every saved weight, logit, activation and
+logged value bit for bit. So its artifacts now carry that commit by reproduction rather than
+argument.
+% STE end
