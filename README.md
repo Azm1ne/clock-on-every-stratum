@@ -5,9 +5,6 @@ Every Stratum: Character Circuits for Modular Multiplication at Non-Square-Free 
 purpose is to let a reader check each number in the paper without running the experiments
 again.
 
-The repository contains no author information.
-The paper identifies its authors.
-
 ## How to use this repository
 
 First, install the dependencies:
