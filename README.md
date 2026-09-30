@@ -1,4 +1,4 @@
-# A Clock on Every Stratum — code and lab record
+# A Clock on Every Stratum — code, checks and proofs
 
 Reproduction material for *A Clock on Every Stratum: Character Circuits for Modular
 Multiplication at Non-Square-Free Moduli*. This repository exists for one purpose: so that
