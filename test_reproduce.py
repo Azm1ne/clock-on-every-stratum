@@ -6,7 +6,7 @@ this fails the self-check suite instead.
 
   PYTHONPATH=. .venv/bin/python test_reproduce.py
 """
-import glob
+import glob, re
 import os
 import sys
 
@@ -31,6 +31,9 @@ def main():
                + [os.path.join(ROOT, "jclass_spectra.py"), os.path.join(ROOT, "refcheck.py")]}
     scripts.discard(os.path.basename(__file__))
     missing = sorted(s for s in scripts if s not in EXEMPT and s not in body)
+    assert all(re.search(rf"^\s*scripts/lean_gate\.sh{a}(\s+#.*)?$", body, re.M)
+               for a in (" --selfcheck", "")), \
+        "scripts/reproduce.sh does not run the Lean gate and its selfcheck"
     stale = sorted(s for s in EXEMPT if s not in scripts)
     assert not missing, (
         "scripts/reproduce.sh does not cover: " + ", ".join(missing) +

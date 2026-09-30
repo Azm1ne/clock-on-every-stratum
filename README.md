@@ -14,6 +14,7 @@ It carries no authorship metadata. The paper that links here identifies its auth
 | `kernels/` | the GPU kernels that produced each sweep, and the push/poll/pull harness |
 | `analyze_*.py`, `test_*.py` | the analyses, and the checks that guard them |
 | `paper/` | the manuscript sources |
+| `lean/` | the paper's mathematics in Lean 4, indexed statement by statement in `lean/README.md` |
 
 ## Reproducing the numbers
 

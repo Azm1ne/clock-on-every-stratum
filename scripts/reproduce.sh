@@ -64,6 +64,15 @@ hdr "2. cross-checks against the authors' released code"
 # Needs reference/ -- run scripts/restore_external.sh first. Skips cleanly if absent.
 $P refcheck.py                   # C5, C8 on their n=165 checkpoint; O1 convention; C13
 
+hdr "2b. the paper's mathematics in Lean 4 (lean/README.md)"
+# Needs elan; mathlib comes from its prebuilt cache (cd lean && lake exe cache get).
+if command -v lake >/dev/null || [ -x "$HOME/.elan/bin/lake" ]; then
+  scripts/lean_gate.sh --selfcheck   # a planted sorry and native_decide must be rejected
+  scripts/lean_gate.sh               # every row of the appendix table
+else
+  echo "  elan not installed -- Lean gate skipped"
+fi
+
 hdr "3. analyses that regenerate from saved artifacts"
 $P analyze_scout.py              # two-basis sparsity across moduli
 $P analyze_k02.py                # the 5-seed grid, pre-registered criteria
