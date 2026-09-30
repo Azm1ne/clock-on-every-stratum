@@ -11,6 +11,7 @@ size. No cut-off, and a p-value instead of a yes/no.
 Prime powers are excluded: with one CRT component n/q = 1, so the predicted set is every
 frequency and the test is vacuous by construction, not by failure.
 """
+import os
 import numpy as np
 from sympy import factorint
 from src.tasks.algebra import describe
@@ -143,18 +144,23 @@ def main():
         print(f"{n:>5} {fac:>12} {len(pred):>7} {len(e):>6} {obs:>8.2f} "
               f"{nullmean:>6.2f} {p:>9.2e}  {v}")
 
-    # the same test on the published third-party checkpoint
-    import torch
-    ck = torch.load("reference/interpreting-monoids/experiments/P165_d128_h4_mlp512_s1.pt",
-                    map_location="cpu", weights_only=False)
-    sd = ck["model_state_dict"] if "model_state_dict" in ck else ck
-    W = sd["embed.weight"].numpy()[:165].astype(float)
-    W = W - W.mean(0, keepdims=True)
-    e = freq_energy(W, 165)
-    obs, p, nullmean = permutation_test(e, [k - 1 for k in predicted(165)])
-    print(f"\n{'165':>5} {'THEIR ckpt':>12} {len(predicted(165)):>7} {len(e):>6} "
-          f"{obs:>8.2f} {nullmean:>6.2f} {p:>9.2e}  "
-          f"{'ENRICHED' if p < 0.01 else 'NOT ENRICHED'}")
+    # the same test on the published third-party checkpoint. reference/ is not shipped (it is
+    # the authors' repository), so a public clone skips this row, as refcheck.py does.
+    _ck = "reference/interpreting-monoids/experiments/P165_d128_h4_mlp512_s1.pt"
+    if os.path.exists(_ck):
+        import torch
+        ck = torch.load(_ck, map_location="cpu", weights_only=False)
+        sd = ck["model_state_dict"] if "model_state_dict" in ck else ck
+        W = sd["embed.weight"].numpy()[:165].astype(float)
+        W = W - W.mean(0, keepdims=True)
+        e = freq_energy(W, 165)
+        obs, p, nullmean = permutation_test(e, [k - 1 for k in predicted(165)])
+        print(f"\n{'165':>5} {'THEIR ckpt':>12} {len(predicted(165)):>7} {len(e):>6} "
+              f"{obs:>8.2f} {nullmean:>6.2f} {p:>9.2e}  "
+              f"{'ENRICHED' if p < 0.01 else 'NOT ENRICHED'}")
+    else:
+        print(f"\n  {_ck} missing -- clone the authors' repositories into reference/ "
+              "to run this row")
     print("\nNote: p is Phipson-Smyth (1+b)/(B+1) over permutations at least as enriched.")
     print(f"The floor is 1/{N_PERM+1:,} = {1/(N_PERM+1):.2e}; a p AT the floor means no draw")
     print("reached the observation, not that the probability is zero.")
