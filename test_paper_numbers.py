@@ -574,20 +574,26 @@ chk("1: nilpotents exist in Z/nZ iff n is NOT square-free", len(_bad), 0)
 # asserts the same number is exactly how STATE's C33 row stayed stale for six
 # days after the correction reached FINDINGS and the paper. So score the
 # DOCUMENT against the scorer too, row by row.
-print("\nF9 -- FINDINGS.md's table scored against the scorer, not against the paper")
-_find = pathlib.Path(__file__).with_name("FINDINGS.md").read_text()
-_row = re.compile(r"^\|\s*\*\*(G\d)\*\*[^|]*\|[^|]*?(\d+)/(\d+)[^|]*\|[^|]*?(\d+)/(\d+)[^|]*\|",
-                  re.M)
-_doc = {m.group(1): ((int(m.group(2)), int(m.group(3))),
-                     (int(m.group(4)), int(m.group(5)))) for m in _row.finditer(_find)}
-chk("F9: FINDINGS' table has all six criterion rows", sorted(_doc), ["G0","G1","G2","G3","G4","G5"])
-for _name, (_wg, _wb) in _WANT.items():
-    _g = _name.split()[0]
-    # chk(label, got, want) prints paper={want} artifact={got}, so the SCORER value is
-    # `got` and the DOCUMENT value is `want`. Passing them the other way round printed
-    # the planted stale row under "artifact" -- the fourth upside-down column here.
-    chk(f"F9: FINDINGS row {_g} grokked matches the scorer", _wg, _doc.get(_g, (None, None))[0])
-    chk(f"F9: FINDINGS row {_g} FAILED matches the scorer",  _wb, _doc.get(_g, (None, None))[1])
+# FINDINGS.md and the pre-registrations are not in the public repository, so the checks
+# that score them are skipped (and say so) where they are absent, as for STATE.md below.
+_FINDINGS = pathlib.Path(__file__).with_name("FINDINGS.md")
+if _FINDINGS.exists():
+    print("\nF9 -- FINDINGS.md's table scored against the scorer, not against the paper")
+    _find = _FINDINGS.read_text()
+    _row = re.compile(r"^\|\s*\*\*(G\d)\*\*[^|]*\|[^|]*?(\d+)/(\d+)[^|]*\|[^|]*?(\d+)/(\d+)[^|]*\|",
+                      re.M)
+    _doc = {m.group(1): ((int(m.group(2)), int(m.group(3))),
+                         (int(m.group(4)), int(m.group(5)))) for m in _row.finditer(_find)}
+    chk("F9: FINDINGS' table has all six criterion rows", sorted(_doc), ["G0","G1","G2","G3","G4","G5"])
+    for _name, (_wg, _wb) in _WANT.items():
+        _g = _name.split()[0]
+        # chk(label, got, want) prints paper={want} artifact={got}, so the SCORER value is
+        # `got` and the DOCUMENT value is `want`. Passing them the other way round printed
+        # the planted stale row under "artifact" -- the fourth upside-down column here.
+        chk(f"F9: FINDINGS row {_g} grokked matches the scorer", _wg, _doc.get(_g, (None, None))[0])
+        chk(f"F9: FINDINGS row {_g} FAILED matches the scorer",  _wb, _doc.get(_g, (None, None))[1])
+else:
+    print("\nFINDINGS.md absent (public repository): its F9 table checks are skipped")
 # And the two population totals, which the paper states in prose in two places.
 _tex = (pathlib.Path(__file__).parent / "paper/sections/08-results-strata.tex").read_text()
 _ng, _nf = _WANT["G1 perm p < 0.01"][0][1], _WANT["G1 perm p < 0.01"][1][1]
@@ -739,11 +745,11 @@ if os.path.exists(_I1b % 0):
         {(json.loads(str(z["provenance"]))["git_sha"][:7], json.loads(str(z["provenance"]))["git_dirty"])
          for z in _zb}, {("266b77d", False)})
     # THE PROSE: the two documents that carry C40 today, scored against the artifact.
-    _pre = " ".join(pathlib.Path("experiments/PREREGISTER_i1b_composite_intervention.md")
-                    .read_text().split())
+    _PRE = pathlib.Path("experiments/PREREGISTER_i1b_composite_intervention.md")
+    _pre = " ".join(_PRE.read_text().split()) if _PRE.exists() else None
     _c40 = " ".join(next(l for l in _STATE.read_text().splitlines()
                          if l.startswith("| **C40**")).split()) if _STATE.exists() else None
-    for _doc_name, _txt in (("prereg", _pre),) + ((("STATE C40 row", _c40),) if _c40 else ()):
+    for _doc_name, _txt in ((("prereg", _pre),) if _pre else ()) + ((("STATE C40 row", _c40),) if _c40 else ()):
         chk(f"I1b {_doc_name}: median 1.128e+04", "1.128e+04" in _txt, True)
         chk(f"I1b {_doc_name}: range 7.460e+03-2.881e+07", "7.460e+03–2.881e+07" in _txt, True)
     if _c40:
@@ -752,7 +758,8 @@ if os.path.exists(_I1b % 0):
         chk("I1b STATE: p 1/10001, 1/10001, 3/10001", "1/10001, 1/10001, 3/10001" in _c40, True)
         chk("I1b STATE: 19,426 zero-overlap draws", "19,426 zero-overlap" in _c40, True)
         chk("I1b STATE: grok 10,700/10,300/5,000", "10,700/10,300/5,000" in _c40, True)
-    chk("I1b prereg: grok 10,700 / 10,300 / 5,000", "10,700 / 10,300 / 5,000" in _pre, True)
+    if _pre:
+        chk("I1b prereg: grok 10,700 / 10,300 / 5,000", "10,700 / 10,300 / 5,000" in _pre, True)
     # EXPLORATORY dose table (FINDINGS 3.3c, prereg Outcome): mean null damage by overlap
     chk("I1b dose table, mean damage by key overlap",
         [[f"{float(z['control'][_ovb[s] == o].mean()):.2e}" for o in range(_ovb[s].max() + 1)]
@@ -764,12 +771,13 @@ if os.path.exists(_I1b % 0):
         [round(float(z["control"][_ovb[s] == 0].mean()) / float(z["internal_baseline"]), 2)
          for s, z in enumerate(_zb)], [0.77, 0.76, 1.04])
     # FINDINGS 3.3c and the paper's section 7 -- the documents a reader actually opens.
-    _f33c = " ".join(pathlib.Path("FINDINGS.md").read_text().split("### 3.3c", 1)[1]
-                     .split("\n### ", 1)[0].split())
-    for _needle in ("1.128e+04, range 7.460e+03–2.881e+07, n = 3", "0.0000 / 0.0120 / 0.0000",
-                    "1.0000 / 0.9596 / 1.0000", "19,426 zero-overlap", "1.71e-02",
-                    "10,700 / 10,300 / 5,000", "101.2 %", "13.6× and 1.39×", "0.77× / 0.76× / 1.04×"):
-        chk(f"I1b FINDINGS 3.3c: {_needle}", _needle in _f33c, True)
+    if _FINDINGS.exists():
+        _f33c = " ".join(pathlib.Path("FINDINGS.md").read_text().split("### 3.3c", 1)[1]
+                         .split("\n### ", 1)[0].split())
+        for _needle in ("1.128e+04, range 7.460e+03–2.881e+07, n = 3", "0.0000 / 0.0120 / 0.0000",
+                        "1.0000 / 0.9596 / 1.0000", "19,426 zero-overlap", "1.71e-02",
+                        "10,700 / 10,300 / 5,000", "101.2 %", "13.6× and 1.39×", "0.77× / 0.76× / 1.04×"):
+            chk(f"I1b FINDINGS 3.3c: {_needle}", _needle in _f33c, True)
     _s7 = " ".join(pathlib.Path("paper/sections/07-results-causal.tex").read_text().split())
     for _needle in ("$1.128 \\times 10^{4}$ (range $7.460 \\times 10^{3}$--$2.881 \\times 10^{7}$)",
                     "$7.46 \\times 10^{3}$", "$0.0000$, $0.0120$ and $0.0000$", "$1/110 = 0.00909$",
