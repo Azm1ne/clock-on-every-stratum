@@ -61,3 +61,5 @@ TMLR/abstract.txt
 # arXiv build outputs (scripts/build_arxiv.sh); abstract.txt and SUBMIT.md are tracked.
 for arxiv/*.tar.gz
 for arxiv/main.pdf
+# Zenodo upload (4.8 GB, the deposit itself); SUBMIT.md and description.txt are tracked.
+for zenodo/*.tar.zst

@@ -120,9 +120,11 @@ statement to match the prose.
   stratum at a prime". The strata are the blocks `J_d × J_e`, and a prime has two classes
   (the units and `{0}`), so there are **4**. The figure itself prints "2 classes, 4 strata".
   The other four counts in the caption (9, 16, 16, 256) are the squared class counts. See E4.
+  ✅ **Resolved 2026-09-30:** the caption now reads "There are $4$ strata at a prime".
 - **L-F2, `01-setup.tex:79–80`.** The paper says nilpotents "exist in ℤ/nℤ exactly when n
   is not square-free". `0` is nilpotent in every ring, so the claim holds only for
   **nonzero** nilpotents. A6 states the corrected form.
+  ✅ **Resolved 2026-09-30:** the paper now reads "$x \neq 0$ with $x^{k} = 0$".
 
 ## Completeness
 

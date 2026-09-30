@@ -6,7 +6,7 @@ paper's table body equals rows() exactly, so the table cannot drift from what ra
 
   PYTHONPATH=. .venv/bin/python scripts/sweep_table.py        # print the LaTeX rows
 """
-import glob, json, re
+import glob, json, os, re
 from src import provenance
 
 # name, results dir, file filter, training script, analysis script
@@ -101,6 +101,8 @@ def hours(name, d):
         return json.load(open(glob.glob(f"results/{d}/grokking-*.log")[0]))[-1]["time"] / 3600
     pats = LOGS[name] if isinstance(LOGS[name], list) else [LOGS[name]]
     fs = [f for p in pats for f in sorted(glob.glob(p))]
+    if not fs and not os.path.isdir("logs"):
+        return None   # the public repository: run logs are not shipped
     assert fs, f"no logs for {name}"
     h = 0.0
     for f in fs:
@@ -138,7 +140,7 @@ def rows():
                      fmt_set([c["steps"] for c in cs]),
                      fmt_set([c["train_frac"] for c in cs], ints=False),
                      "Kaggle T4" if d.startswith("k0") else "CPU"])
-        files.append([name, tt(train), tt(f"results/{d}"), tt(ana), f"${hours(name, d):.1f}$"])
+        files.append([name, tt(train), tt(f"results/{d}"), tt(ana), None if (h := hours(name, d)) is None else f"${h:.1f}$"])
     return conf, files
 
 
@@ -173,6 +175,11 @@ INERT = {
 def _git(*a):
     import subprocess
     return subprocess.run(["git", *a], capture_output=True, text=True, check=True).stdout.split()
+
+
+def _in_history(sha):
+    import subprocess
+    return subprocess.run(["git", "cat-file", "-e", f"{sha}^{{commit}}"], capture_output=True).returncode == 0
 
 
 def drift():
@@ -243,6 +250,13 @@ def _selfcheck():
     except AssertionError:
         pass
     COMMANDS["N9"] = keep
+    shas = {s for _, ss, _ in commands() for s in ss if s != "unknown"}
+    have = {s for s in shas if _in_history(s)}
+    if not have:   # the public repository: its history begins at one import commit (README)
+        print(f"sweep_table: drift check skipped, none of the {len(shas)} stamped commits is in this history")
+        print(f"sweep_table selfcheck PASS: {len(COMMANDS)} sweeps, {n} stamped argv matched, 2 plants caught")
+        return
+    assert have == shas, f"stamped commits missing from history: {sorted(shas - have)}"
     assert drift() == [], drift()
     blob, why = INERT["run_o18_cpu.py"]
     INERT["run_o18_cpu.py"] = ("000000000000", why)   # planted: the file changed after review

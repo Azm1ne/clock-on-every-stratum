@@ -10,8 +10,12 @@ from src.analysis.transforms import unit_index, additive_dft, energy
 from src.analysis.sparsity import gini, participation_ratio, key_freqs_5x_median
 
 N = 165
-ck = torch.load("reference/interpreting-monoids/experiments/P165_d128_h4_mlp512_s1.pt",
-                map_location="cpu", weights_only=False)
+_CK = "reference/interpreting-monoids/experiments/P165_d128_h4_mlp512_s1.pt"
+try:
+    ck = torch.load(_CK, map_location="cpu", weights_only=False)
+except FileNotFoundError:   # reference/ is not shipped; reproduce.sh promises a clean skip
+    print(f"{_CK} missing -- clone the authors' repositories into reference/ to run these cross-checks")
+    sys.exit(0)
 sd = ck["model_state_dict"] if "model_state_dict" in ck else ck
 W = sd["embed.weight"].numpy()[:N].astype(float)
 W = W - W.mean(0, keepdims=True)

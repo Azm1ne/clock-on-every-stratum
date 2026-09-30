@@ -76,7 +76,7 @@ the condition under which local inverses, and hence local group characters, exis
 \citet{chen2026multiplication}
 prove (their Proposition D.13) that every $\mathcal{J}$-class is regular when $n$ is square-free,
 and state the converse case as the limitation of their work. Non-square-free moduli admit
-non-regular classes containing \emph{nilpotent} elements ($x$ with $x^{k} = 0$ for some
+non-regular classes containing \emph{nilpotent} elements ($x \neq 0$ with $x^{k} = 0$ for some
 $k \ge 1$, which exist in $\mathbb{Z}/n\mathbb{Z}$ exactly when $n$ is not square-free), and
 they describe these as breaking the reduction to local group characters. Our implementation reproduces their theorem on their own
 moduli $143$, $154$ and $165$, and finds non-regular classes at exactly the moduli where the
@@ -129,7 +129,7 @@ which makes them a graded pair rather than two arbitrary composites.
     are ordered by $\gcd(x, n)$, so each stratum $J_{d} \times J_{e}$ is a rectangle, and
     cell shade is the $\mathcal{J}$-class of the product. The operation, the architecture and
     the training budget are identical across the five. So only the algebra of $n$ differs.
-    There is one stratum at a prime, $9$ at $11^{2}$, $16$ at $5^{3}$ and at $7 \cdot 17$,
+    There are $4$ strata at a prime, $9$ at $11^{2}$, $16$ at $5^{3}$ and at $7 \cdot 17$,
     and $256$ at $2^{3} \cdot 3 \cdot 5$.\par
     Red outlines mark non-regular classes, which occur at exactly the three non-square-free
     moduli and at neither square-free one. That is Proposition D.13 of

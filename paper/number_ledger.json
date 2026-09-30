@@ -70,5 +70,17 @@
   "status": "exempt",
   "why": "a wall-clock time on one machine, not a result",
   "text": "took $8.5$ hours on our CPU."
+ },
+ "05-methods.tex:fee8a3aad2:9.6": {
+  "status": "todo",
+  "why": "the first, single-bin scoring of Gate 1's C7 neuron statistic (LAB_NOTEBOOK Entry 12, FINDINGS C7); no script prints it since the fix",
+  "coincidental": "covered in the lab only by an equal compute-hours value (N9 9.6 h; N7 68.5 h x 0.01), which is no pin; found when a public clone without logs/ uncovered it",
+  "text": "\\citet{nanda2023progress}'s; scoring a single bin instead reads $9.6\\%$ where the correct"
+ },
+ "12-limitations.tex:c57e2d851b:0.68": {
+  "status": "todo",
+  "why": "453 post-grok samples x torch's 0.15 %/sample (PREREGISTER_o18_f64.md F5); the 0.15 % pool is not re-derived: k03 alone reads 6/4226 = 0.142 %, giving 0.64",
+  "coincidental": "covered in the lab only by an equal compute-hours value (N9 9.6 h; N7 68.5 h x 0.01), which is no pin; found when a public clone without logs/ uncovered it",
+  "text": "$453$, where the no-effect expectation was $0.68$. The pre-registered probability of zero"
  }
 }

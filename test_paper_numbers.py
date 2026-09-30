@@ -21,6 +21,7 @@ from src.analysis.sparsity import key_freqs_5x_median
 
 ok = fail = 0
 _ASSERTED = []   # every value a PASSING check compared; the coverage gate at the end reads it
+_SKIPPED = []    # every value a check would compare whose input does not ship (public repository)
 
 
 def _collect(x):
@@ -888,6 +889,7 @@ chk("'unknown'-SHA artifacts, k03", _unknown, 31)
 # the new reproduction appendix, 16-reproduction; the pin moved with the sentence.
 _s16 = " ".join(pathlib.Path("paper/sections/16-reproduction.tex").read_text().split())
 _s12 = " ".join(pathlib.Path("paper/sections/12-limitations.tex").read_text().split())
+chk("68 artifacts from the three earliest sweeps carry no usable SHA", _nostamp + _unknown, 68)
 chk("availability appendix says $68$ from the three earliest sweeps",
     f"${_nostamp + _unknown}$ artifacts from the three earliest sweeps" in _s16, True)
 chk("section 12 says $37$ unstamped and $31$ unknown",
@@ -968,13 +970,12 @@ chk("Table A: published values are analyze_k07.PUB (checked against 2606.17399 T
 chk("Table A: key frequencies 4.6 +- 0.8", (round(_m[4], 1), round(_sd[4], 1)), (4.6, 0.8))
 chk("Table A: 4 key frequencies in 3 of 5 seeds", int((_v[:, 4] == 4).sum()), 3)
 chk("Table A: row reads $4.6 \\pm 0.8$ & $4$", "$4.6 \\pm 0.8$ & $4$" in _tab, True)
+_REF = pathlib.Path("reference/interpreting-monoids")   # the authors' repo; not shipped
 _rc = _sp_.run([".venv/bin/python", "refcheck.py"], capture_output=True, text=True,
-               env={**os.environ, "PYTHONPATH": "."}).stdout
+               env={**os.environ, "PYTHONPATH": "."}).stdout if _REF.is_dir() else None
 _sc = _sp_.run([".venv/bin/python", "analyze_scout.py"], capture_output=True, text=True,
                env={**os.environ, "PYTHONPATH": "."}).stdout
-_g = re.search(r"multiplicative \(product-character\) Gini=([\d.]+)\s+PR=([\d.]+)", _rc)
 _r165 = re.search(r"^\s*165\s+\d+\s+\d+ \|\s+([\d.]+).*\|\s+([\d.]+)\s*$", _sc, re.M)
-chk("Table A: their checkpoint Gini_mult (amplitude) and PR", (_g.group(1), _g.group(2)), ("0.637", "4.85"))
 chk("Table A: our scout n=165 Gini_mult (amplitude) and PR", (_r165.group(1), _r165.group(2)), ("0.629", "4.76"))
 for _f in ("refcheck.py", "analyze_scout.py"):   # P6: no Gini on energy may come back
     chk(f"P6: {_f} takes no Gini on energy",
@@ -983,10 +984,16 @@ chk("Table A: row reads Gini_mult & $0.629$ & $0.637$",
     "$\\mathrm{Gini}_{\\text{mult}}$ & $0.629$ & $0.637$" in _tab, True)
 chk("Table A: no energy label left", "on energy" in _tab or "energy spectrum" in _tab, False)
 chk("Table A: row reads $4.76$ & $4.85$", "$4.76$ & $4.85$" in _tab, True)
-chk("Table A: J-class separation 1.03 vs shuffled 0.63",
-    (re.search(r"separation ratio \(between/within\) = ([\d.]+)", _rc).group(1),
-     re.search(r"shuffled-label control ratio\s+= ([\d.]+)", _rc).group(1)), ("1.03", "0.63"))
-chk("Table A: P(n) exact on their checkpoint", "EXACT  [their ckpt]" in _rc, True)
+if _rc is None:
+    print(f"  {_REF}/ absent: the three checks on the authors' checkpoint are skipped")
+    _SKIPPED.extend([0.637, 4.85, 1.03, 0.63])
+else:
+    _g = re.search(r"multiplicative \(product-character\) Gini=([\d.]+)\s+PR=([\d.]+)", _rc)
+    chk("Table A: their checkpoint Gini_mult (amplitude) and PR", (_g.group(1), _g.group(2)), ("0.637", "4.85"))
+    chk("Table A: J-class separation 1.03 vs shuffled 0.63",
+        (re.search(r"separation ratio \(between/within\) = ([\d.]+)", _rc).group(1),
+         re.search(r"shuffled-label control ratio\s+= ([\d.]+)", _rc).group(1)), ("1.03", "0.63"))
+    chk("Table A: P(n) exact on their checkpoint", "EXACT  [their ckpt]" in _rc, True)
 _g1 = _sp_.run([".venv/bin/python", "test_gate1.py", "results/gate1/add113_final.npz"],
                capture_output=True, text=True, env={**os.environ, "PYTHONPATH": "."}).stdout
 chk("Table A: Gate 1 grok step 6,900",
@@ -1106,7 +1113,15 @@ def _tbody(lab):
     t = _rep.split(f"\\label{{{lab}}}", 1)[1].split("\\bottomrule", 1)[0].split("\\midrule", 1)[1]
     return [[c.strip() for c in r.split("&")] for r in t.split("\\\\") if r.strip()]
 chk("tab:sweeps equals sweep_table.rows()", _confS, _tbody("tab:sweeps"))
-chk("tab:sweep-files equals sweep_table.rows()", _filesS, _tbody("tab:sweep-files"))
+_filesT = _tbody("tab:sweep-files")
+if any(r[-1] is None for r in _filesS):   # the public repository ships no run logs
+    print("  logs/ absent: tab:sweep-files is compared without its compute-hours column")
+    _SKIPPED.extend(float(t[-1].strip("$")) for r, t in zip(_filesS, _filesT) if r[-1] is None)
+    chk("tab:sweep-files compute hours, where the logs ship",
+        [r[-1] for r in _filesS if r[-1] is not None],
+        [t[-1] for r, t in zip(_filesS, _filesT) if r[-1] is not None])
+    _filesS, _filesT = [r[:-1] for r in _filesS], [r[:-1] for r in _filesT]
+chk("tab:sweep-files equals sweep_table.rows()", _filesS, _filesT)
 _allc = [c for _, d, pat, _, _ in _swt.SWEEPS for c in _swt.configs(d, pat)]
 chk("tab:sweeps caption: every run is lr 1e-3, wd 1.0",
     sorted({(c["lr"], c["wd"]) for c in _allc}), [(0.001, 1.0)])
@@ -1599,6 +1614,29 @@ chk("11/15 P21: no unscoped 'every absolute sparsity number ... float32'",
     [f for f, t in _secsC.items() if re.search(r"every absolute sparsity number in this paper", " ".join(t.split()))], [])
 chk("14 P20: ...and the paper prints both", "runs $+0.856$ to $+0.949$, and a flat-variance \\emph{noise} control scores $\\rho = +0.942$"
     in " ".join(_secsC["14-appendices.tex"].split()), True)
+# L-F1 / L-F2 (researcher, 2026-09-30), found by the Lean formalisation (E4, A6). F2's caption
+# printed "one stratum at a prime"; strata are J_d x J_e, so the count is the squared class count.
+_s1 = " ".join(_secsC["01-setup.tex"].split())
+chk("1 L-F1: strata at 113, 121, 125, 119, 120", [len(_alg.j_structure(m)) ** 2 for m in (113, 121, 125, 119, 120)], [4, 9, 16, 16, 256])
+chk("1 L-F1: ...and F2's caption prints them", "There are $4$ strata at a prime, $9$ at $11^{2}$, $16$ at $5^{3}$ and at $7 \\cdot 17$, and $256$" in _s1, True)
+# 0 is nilpotent in every ring; only NONZERO nilpotents track square-freeness.
+from sympy import factorint as _fi
+chk("1 L-F2: a nonzero nilpotent exists iff n is not square-free, n < 200",
+    [m for m in range(2, 200) if any(x for j in _alg.j_structure(m) for x in j["nilpotents"]) != (max(_fi(m).values()) > 1)], [])
+chk("1 L-F2: ...and the paper says x != 0", ("($x \\neq 0$ with $x^{k} = 0$" in _s1, "($x$ with $x^{k} = 0$" in _s1), (True, False))
+# L-F3 (researcher, 2026-10-01): "these classes contain nilpotents" is false read universally.
+# Every non-square-free n has a non-regular class holding a nonzero nilpotent (J_{n/p}), but not every one does.
+_nr = lambda m: [j for j in _alg.j_structure(m) if not j["regular"]]
+chk("0 L-F3: every non-square-free n < 200 has a non-regular class with a nonzero nilpotent",
+    [m for m in range(2, 200) if max(_fi(m).values()) > 1 and not any(any(j["nilpotents"]) for j in _nr(m))], [])
+chk("0 L-F3: ...but at n = 120 only 2 of its 8 non-regular classes do", (sum(any(j["nilpotents"]) for j in _nr(120)), len(_nr(120))), (2, 8))
+_ab = " ".join(_secsC["00-abstract.tex"].split())
+chk("0 L-F3: ...and the abstract says 'some', 'nonzero'",
+    ("some of these classes contain nonzero nilpotents" in _ab, "and these classes contain nilpotents" in _ab), (True, False))
+if pathlib.Path("for arxiv/abstract.txt").exists():   # the arXiv metadata abstract; not in the public export
+    _aa = pathlib.Path("for arxiv/abstract.txt").read_text()
+    chk("0 L-F3: ...and so does the arXiv metadata abstract",
+        ("some of whose non-regular classes contain nonzero nilpotents" in _aa, "whose non-regular classes contain nilpotents" in _aa), (True, False))
 
 print("\nNUMBER COVERAGE (P7) -- every number the paper prints is asserted above or ledgered")
 # A number is covered when a PASSING check above compared a value that rounds to it at the
@@ -1611,11 +1649,12 @@ print("\nNUMBER COVERAGE (P7) -- every number the paper prints is asserted above
 # number with no entry FAILS, so no new unasserted number can enter the paper.
 _V = np.array(_ASSERTED)
 _SCI = re.compile(r"(\d[\d,]*(?:\.\d+)?)\s*(?:\\mathrm\{e\}\{([-+]?\d+)\}|\\times\s*10\^\{?([-+]?\d+)\}?)")
-def _covered(tok, exp=0):
+def _covered(tok, exp=0, V=None):
+    V = _V if V is None else V
     t = tok.replace(",", "")
     dec = len(t.split(".")[1]) if "." in t else 0
     v, tol = float(t) * 10.0 ** exp, 0.5 * 10.0 ** (exp - dec) * (1 + 1e-9)
-    return any(np.any(np.abs(_V * sc - v) <= tol) for sc in (1, 100, 0.01))
+    return any(np.any(np.abs(V * sc - v) <= tol) for sc in (1, 100, 0.01))
 def number_tokens():
     """(key, file, line, token, text) for every number printed in paper/sections."""
     import hashlib
@@ -1635,6 +1674,11 @@ def number_tokens():
                     yield f"{f.name}:{h}:{tok}", f.name, i, (tok, 0), l.strip()
 _ledger = json.loads(pathlib.Path("paper/number_ledger.json").read_text())
 _unc = [(k, f, i, t, l) for k, f, i, t, l in number_tokens() if not _covered(*t)]
+# A number whose only check was skipped for an input that does not ship is reported, not failed.
+_skp = [x for x in _unc if x[0] not in _ledger and _covered(*x[3], V=np.array(_SKIPPED))]
+_unc = [x for x in _unc if x not in _skp]
+for k, f, i, t, l in _skp:
+    print(f"  [SKIP] not re-derivable here (its input is not shipped): {f}:{i} {t[0]}")
 _new = [(f, i, t[0]) for k, f, i, t, l in _unc if k not in _ledger]
 if os.environ.get("NUMBER_LEDGER_DUMP"):
     json.dump([dict(key=k, file=f, line=i, tok=t[0], exp=t[1], text=l) for k, f, i, t, l in _unc],
