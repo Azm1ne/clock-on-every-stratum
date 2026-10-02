@@ -125,6 +125,16 @@ statement to match the prose.
   is not square-free". `0` is nilpotent in every ring, so the claim holds only for
   **nonzero** nilpotents. A6 states the corrected form.
   ✅ **Resolved 2026-09-30:** the paper now reads "$x \neq 0$ with $x^{k} = 0$".
+- **L-F4, `prop:generator`'s proof (`05-methods.tex`).** The proof called the `p` of
+  `eq:permp` invariant. That holds for the exact permutation `p`. The Monte-Carlo estimate
+  `p̂` is invariant only in distribution, because `analyze_n4.py` draws by list position
+  with a fixed seed, and `test_generator_equivariance.py` checks only the `p < 0.01` verdict.
+  ✅ **Resolved 2026-10-01:** the proof and the verification sentence now say so.
+- **L-F5.** This README said the paper cites Phipson–Smyth; it named the estimator and did
+  not cite it. ✅ **Resolved 2026-10-01:** `phipson2010permutation` (DOI checked on Crossref).
+- **L-F6, `09-results-crt.tex:32`.** "The mechanism is elementary" contradicted the same
+  section's finding that the class indicators do not select `P(n)`. ✅ **Resolved 2026-10-01:**
+  "The motivation for `eq:crtset` is elementary".
 
 ## Completeness
 

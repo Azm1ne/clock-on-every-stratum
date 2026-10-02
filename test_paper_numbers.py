@@ -1637,6 +1637,21 @@ if pathlib.Path("for arxiv/abstract.txt").exists():   # the arXiv metadata abstr
     _aa = pathlib.Path("for arxiv/abstract.txt").read_text()
     chk("0 L-F3: ...and so does the arXiv metadata abstract",
         ("some of whose non-regular classes contain nonzero nilpotents" in _aa, "whose non-regular classes contain nilpotents" in _aa), (True, False))
+# L-F4..L-F6 (researcher, 2026-10-01). L-F4: p-hat is invariant only in distribution, and the
+# equivariance test checks only its verdict. L-F5: Phipson-Smyth is cited. L-F6: "motivation", not "mechanism".
+_m5 = " ".join(_secsC["05-methods.tex"].split())
+chk("0 L-F4: Prop. 3 says p-hat is invariant in distribution, and no longer 'Verified numerically to'",
+    ("invariant in distribution, not draw by draw" in _m5, "Verified numerically to" in _m5), (True, False))
+chk("0 L-F4: ...and the test no longer prints that p is identical under every generator",
+    "permutation p identical" in pathlib.Path("test_generator_equivariance.py").read_text(), False)
+_bib = pathlib.Path("paper/refs.bib").read_text()
+chk("0 L-F5: Phipson-Smyth is in refs.bib with its DOI and cited where the estimator is named",
+    ("@article{phipson2010permutation," in _bib, "10.2202/1544-6115.1585" in _bib,
+     "\\citep{phipson2010permutation}" in _m5, "\\citep{phipson2010permutation}" in _secsC["07-results-causal.tex"]),
+    (True, True, True, True))
+_c9 = " ".join(_secsC["09-results-crt.tex"].split())
+chk("0 L-F6: the CRT section calls the elementary argument a motivation, not the mechanism",
+    ("The motivation for \\eqref{eq:crtset} is elementary" in _c9, "The mechanism is elementary" in _c9), (True, False))
 
 print("\nNUMBER COVERAGE (P7) -- every number the paper prints is asserted above or ledgered")
 # A number is covered when a PASSING check above compared a value that rounds to it at the

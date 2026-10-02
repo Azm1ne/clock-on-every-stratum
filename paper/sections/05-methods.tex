@@ -120,12 +120,16 @@ $k \mapsto tk$ is a bijection of $\mathbb{Z}/\varphi\mathbb{Z}$, so it permutes 
 multiset $\{A_{k}\}$; \eqref{eq:gini} and \eqref{eq:pr} are symmetric functions of that
 multiset. It also maps the diagonal to itself, $(k,k) \mapsto (tk, tk)$, so $\Pi_{K}$ and
 $\Pi_{K^{c}}$ in \eqref{eq:ablation} are conjugated by a permutation and their losses are
-unchanged. The $p$ of \eqref{eq:permp} is a function of those losses and of a uniform draw over
-sets of fixed cardinality, which the permutation preserves.
+unchanged. The $p$ of \eqref{eq:equivariance} is the exact permutation $p$, a function of those
+losses and of the uniform distribution over sets of fixed cardinality, which the permutation
+preserves. Its Monte-Carlo estimate $\hat{p}$ of \eqref{eq:permp} is therefore invariant in
+distribution, not draw by draw, because a fixed random seed selects different characters
+under a different generator.
 \end{proof}
 
-Verified numerically to $10^{-10}$ at $113$, $121$ and $125$, and per cyclic component at the
-non-cyclic moduli. A key-frequency value is therefore not a property of a model. Only
+Gini, PR and the three losses are verified numerically to $10^{-10}$ at $113$, $121$ and $125$,
+and the losses per cyclic component at the non-cyclic moduli. For $\hat{p}$ the check is that
+the $p < 0.01$ verdict does not change. A key-frequency value is therefore not a property of a model. Only
 the set up to multiplication by a unit modulo $\varphi$ is, and this paper states key sets in
 that sense. Writing ``key frequencies $\{11, 29, 33, 49\}$ at $n = 121$'' names a representative of an orbit, not
 an invariant.
@@ -364,7 +368,7 @@ $B = 10{,}000$ and $b$ the number of draws at least as damaging as the key set,
   \mathbf{1}\Bigl[\, \mathcal{L}(\Pi_{R_{b'}^{c}} L) \;\ge\; \mathcal{L}(\Pi_{K^{c}} L) \,\Bigr],
 \end{equation}
 the fraction of equal-sized random sets at least as damaging as the key set.
-The $(1+b)/(B+1)$ form is deliberate, and the naive $b/B$ is a trap we fell into. The
+The $(1+b)/(B+1)$ form \citep{phipson2010permutation} is deliberate, and the naive $b/B$ is a trap we fell into. The
 ratio $b/B$ reads exactly $0$ whenever no draw is as damaging as the key set, and a Monte-Carlo
 $p$ of $0$ claims a resolution the design does not have. An earlier draft of this paper
 printed $p = 0.0000$ to four decimals from a $200$-draw null whose smallest expressible

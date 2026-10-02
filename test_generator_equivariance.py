@@ -126,7 +126,7 @@ def main():
     spread = (sm.max() - sm.min()) / sm.mean()
     print(f"  excluded / MEDIAN control over 5 generators: spread {spread:.1%}")
     assert spread < 0.05, f"median-control separation is not stable: {sm}"
-    print("  permutation p identical under every generator          OK")
+    print("  median-control separation stable under every generator OK")
 
     print("\ntest_generator_equivariance: PASS")
 
